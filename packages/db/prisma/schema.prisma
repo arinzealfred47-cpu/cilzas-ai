@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SignupPlatform {
+  WEB
+  IOS
+  ANDROID
+}
+
+enum SubscriptionPlan {
+  MONTHLY
+  ANNUAL
+}
+
+enum SubscriptionStatus {
+  NONE
+  ACTIVE
+  CANCELED
+  EXPIRED
+}
+
+model Profile {
+  id                            String              @id @default(cuid())
+  clerkUserId                   String              @unique
+  email                         String
+  trialStartDate                DateTime            @default(now())
+  acceptedLegalAt               DateTime?
+  acceptedRefundAt              DateTime?
+  acceptedTermsAt               DateTime?
+  acceptedPrivacyAt             DateTime?
+  // Set once at profile creation from the platform the account first signed
+  // up on; never updated afterward. Determines which payment processor
+  // (Dodo Payments on web, Apple/Google IAP via RevenueCat on mobile) is
+  // authoritative for this account's billing for its whole lifetime.
+  signupPlatform                SignupPlatform      @default(WEB)
+  subscriptionStatus            SubscriptionStatus  @default(NONE)
+  subscriptionPlan              SubscriptionPlan?
+  subscriptionCurrentPeriodEnd  DateTime?
+  dodoCustomerId                String?             @unique
+  dodoSubscriptionId            String?             @unique
+  // Stamped each time the win-back cron successfully emails this profile;
+  // gates the every-3-days cadence independent of exact cron delivery timing.
+  lastWinbackEmailSentAt        DateTime?
+  // Populated from Dodo's payment.succeeded webhook — the refund target and
+  // the anchor for the 28-day refund-eligibility window.
+  lastPaymentId                 String?
+  lastPaymentAt                 DateTime?
+  createdAt                     DateTime            @default(now())
+  updatedAt                     DateTime            @updatedAt
+}
+
+model Recipe {
+  id              String   @id @default(cuid())
+  clerkUserId     String
+  mode            String // "custom" | "questionnaire" | "image" | "healthified"
+  title           String
+  servings        Int
+  ingredients     Json // { name, quantity, unit }[]
+  steps           Json // string[]
+  inputPayload    Json // the request that produced this recipe
+  healthFlags     Json     @default("[]") // HealthFlag[] from packages/recipes
+  basedOnRecipeId String? // set when mode === "healthified"
+  // Best-effort AI-generated photo of the finished dish (a "data:image/..."
+  // URL), produced alongside the recipe for the three real generation modes
+  // (custom, questionnaire, image) — not for "healthified", mirroring
+  // countsAsGeneration() in apps/mobile/src/lib/rating-prompt.ts. Null if
+  // generation failed; a failed image never blocks the recipe itself.
+  imageDataUrl    String?
+  createdAt       DateTime @default(now())
+
+  @@index([clerkUserId])
+}

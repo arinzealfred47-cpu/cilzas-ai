@@ -1,0 +1,12 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+allowBuilds:
+  '@prisma/engines': true
+  browser-tabs-lock: true
+  bufferutil: true
+  core-js: true
+  prisma: true
+  sharp: true
+  unrs-resolver: true
+  utf-8-validate: true
