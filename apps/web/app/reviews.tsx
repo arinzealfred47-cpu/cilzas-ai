@@ -42,7 +42,7 @@ function Stars({ count }: { count: number }) {
 
 export function ReviewsSection({ title }: { title: string }) {
   return (
-    <section className="w-full max-w-4xl">
+    <section className="mx-auto w-full max-w-4xl">
       <h2 className="mb-1 text-center text-[1.25rem] font-bold tracking-[-0.01em]">
         Appreciation for Ingredas
       </h2>
