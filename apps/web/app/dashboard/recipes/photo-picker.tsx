@@ -56,7 +56,7 @@ export function PhotoPicker({
   return (
     <div className="animate-fade-scale-in card flex flex-col gap-4 p-4">
       <label className="button-soft flex flex-col gap-2 p-3">
-        <span className="text-sm font-medium text-[color:var(--text)]">📁 Upload image</span>
+        <span className="text-sm font-medium text-[color:var(--text)]">Upload image</span>
         <input
           type="file"
           accept="image/*"
@@ -67,7 +67,7 @@ export function PhotoPicker({
       </label>
 
       <label className="button-soft flex flex-col gap-2 p-3">
-        <span className="text-sm font-medium text-[color:var(--text)]">📷 Take a photo</span>
+        <span className="text-sm font-medium text-[color:var(--text)]">Take a photo</span>
         <input
           type="file"
           accept="image/*"

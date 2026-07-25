@@ -10,6 +10,34 @@ import {
 import { ConfirmModal } from "@/components/confirm-modal";
 import { EmailModal } from "./email-modal";
 
+function CopyIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="9" y="9" width="12" height="12" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+function EmailIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 6-10 7L2 6" />
+    </svg>
+  );
+}
+function DeleteIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 6h18" />
+      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <path d="m19 6-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+    </svg>
+  );
+}
+
 export type SavedRecipe = {
   id: string;
   mode: string;
@@ -173,31 +201,40 @@ export function RecipeCard({
         className="flex flex-wrap gap-2 border-t pt-3"
         style={{ borderColor: "var(--border)" }}
       >
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="chip"
-          title="Copy to clipboard"
-        >
-          📋 {copied ? "Copied!" : "Copy"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setEmailModalOpen(true)}
-          className="chip"
-          title="Email recipe"
-        >
-          ✉️ Email
-        </button>
-        {onRequestDelete && (
+        <span className="icon-btn-wrap">
           <button
             type="button"
-            onClick={() => setDeleteModalOpen(true)}
-            className="chip chip-danger"
-            title="Delete recipe"
+            onClick={handleCopy}
+            className={`icon-btn ${copied ? "copied" : ""}`}
+            aria-label="Copy to clipboard"
           >
-            🗑️ Delete
+            <CopyIcon />
           </button>
+          <span className="icon-tooltip">{copied ? "Copied!" : "Copy"}</span>
+        </span>
+        <span className="icon-btn-wrap">
+          <button
+            type="button"
+            onClick={() => setEmailModalOpen(true)}
+            className="icon-btn"
+            aria-label="Email recipe"
+          >
+            <EmailIcon />
+          </button>
+          <span className="icon-tooltip">Email</span>
+        </span>
+        {onRequestDelete && (
+          <span className="icon-btn-wrap">
+            <button
+              type="button"
+              onClick={() => setDeleteModalOpen(true)}
+              className="icon-btn icon-btn-danger"
+              aria-label="Delete recipe"
+            >
+              <DeleteIcon />
+            </button>
+            <span className="icon-tooltip">Delete</span>
+          </span>
         )}
       </div>
 

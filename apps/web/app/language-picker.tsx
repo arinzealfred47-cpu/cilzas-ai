@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { LANGUAGES, findLanguage } from "@repo/i18n";
 import { useLanguage } from "./language-context";
 
-export function LanguagePicker() {
+export function LanguagePicker({ variant = "header" }: { variant?: "header" | "settings" }) {
   const { locale, setLocale, t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -46,11 +46,18 @@ export function LanguagePicker() {
         onClick={() => setOpen((v) => !v)}
         className="button-soft flex w-full items-center justify-between px-4 py-2 text-sm"
       >
-        <span>
-          {current?.name ?? "English"}{" "}
-          <span style={{ color: "var(--text-faint)" }}>({current?.nativeName})</span>
-        </span>
-        <span style={{ color: "var(--text-faint)" }}>▾</span>
+        {variant === "settings" ? (
+          <>
+            <span>🌐 Language *</span>
+            <span>
+              {current?.name ?? "English"} <span style={{ color: "var(--text-faint)" }}>▾</span>
+            </span>
+          </>
+        ) : (
+          <span>
+            🌐 {current?.name ?? "English"} <span style={{ color: "var(--text-faint)" }}>▾</span>
+          </span>
+        )}
       </button>
 
       {open && (

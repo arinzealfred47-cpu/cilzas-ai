@@ -145,7 +145,7 @@ export default function RecipesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 py-10 sm:py-16">
-      <h1 className="text-[1.25rem] font-bold tracking-[-0.01em]">Recipe Generator</h1>
+      <h1 className="text-[1.25rem] font-bold tracking-[-0.01em]">Generate a recipe</h1>
 
       <div className="pill-tabs">
         {modeButtons.map((m) => (
@@ -187,8 +187,11 @@ export default function RecipesPage() {
         </div>
       )}
 
-      <div id="history">
-        <h2 className="section-label mb-3">Recipe History</h2>
+      <div id="history" className="history-zone flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <h2 className="text-[1.0625rem] font-semibold">Recipe History</h2>
+          <span className="history-count">{history.length}</span>
+        </div>
         {historyLoading && (
           <p className="text-sm text-[color:var(--text-muted)]">Loading...</p>
         )}

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useLanguage } from "./language-context";
 import { LanguagePicker } from "./language-picker";
 import { ReviewsSection } from "./reviews";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 export function LandingContent() {
   const { t, rtl } = useLanguage();
@@ -18,17 +17,12 @@ export function LandingContent() {
       <div className="bg-blob bg-blob-a" style={{ top: "-6rem", left: "-6rem" }} />
       <div className="bg-blob bg-blob-b" style={{ bottom: "-4rem", right: "-4rem" }} />
 
-      <div className="relative z-10 flex w-full max-w-4xl items-center justify-between">
-        <span className="flex items-center gap-2 text-[1.0625rem] font-semibold">
-          <span aria-hidden>🍳</span> Ingredas
-        </span>
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <LanguagePicker />
-        </div>
+      <div className="relative z-10 flex w-full max-w-xl justify-end">
+        <LanguagePicker />
       </div>
 
-      <div className="relative z-10 flex max-w-xl flex-col items-center gap-6 text-center">
+      <div className="relative z-10 flex max-w-xl flex-col items-center gap-3 text-center">
+        <span className="hero-badge">🍳 Ingredas</span>
         <h1
           className="animate-in-up text-[1.9rem] font-extrabold tracking-[-0.02em] sm:text-[2.5rem]"
         >
