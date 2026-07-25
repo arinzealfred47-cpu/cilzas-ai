@@ -3,6 +3,14 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Fonts } from '@/constants/theme';
 
+// Class components can't use hooks, and this screen renders above
+// ThemeModeProvider (it exists specifically to catch errors from
+// everything below it, including the theme provider itself) — so it
+// always uses the dark palette directly rather than reacting to the
+// user's theme preference. Acceptable since this is a rare crash-only
+// fallback, not a normal navigable screen.
+const theme = Colors.dark;
+
 type Props = { children: ReactNode };
 type State = { error: Error | null };
 
@@ -46,17 +54,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
     padding: 24,
-    backgroundColor: Colors.dark.background,
+    backgroundColor: theme.background,
   },
   title: {
     fontFamily: Fonts.semiBold,
     fontSize: 20,
-    color: Colors.dark.text,
+    color: theme.text,
   },
   message: {
     fontFamily: Fonts.sans,
     fontSize: 14,
-    color: Colors.dark.textSecondary,
+    color: theme.textSecondary,
     textAlign: 'center',
   },
   button: {

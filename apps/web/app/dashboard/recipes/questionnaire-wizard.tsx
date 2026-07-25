@@ -77,14 +77,14 @@ export function QuestionnaireWizard({
   }
 
   return (
-    <div className="animate-fade-scale-in flex flex-col gap-4 rounded border border-white/15 p-4">
-      <p className="text-xs text-white/50">
+    <div className="animate-fade-scale-in card flex flex-col gap-4 p-4">
+      <p className="text-xs text-[color:var(--text-faint)]">
         Question {step + 1} of {totalSteps}
       </p>
 
       {step === 0 && (
         <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-white/90">
+          <span className="text-sm font-medium text-[color:var(--text)]">
             What time of the day is it?
           </span>
           <input
@@ -94,14 +94,14 @@ export function QuestionnaireWizard({
             onChange={(e) =>
               setAnswers((a) => ({ ...a, timeOfDay: e.target.value }))
             }
-            className="input-dark"
+            className="input-field"
           />
         </label>
       )}
 
       {step === 1 && (
         <fieldset className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-white/90">
+          <span className="text-sm font-medium text-[color:var(--text)]">
             Does the food/dish need to be healthy?
           </span>
           <YesNo
@@ -113,14 +113,14 @@ export function QuestionnaireWizard({
 
       {step === 2 && (
         <fieldset className="flex flex-col gap-3">
-          <span className="text-sm font-medium text-white/90">Are you eating alone?</span>
+          <span className="text-sm font-medium text-[color:var(--text)]">Are you eating alone?</span>
           <YesNo
             value={answers.eatingAlone}
             onChange={(v) => setAnswers((a) => ({ ...a, eatingAlone: v, partySize: v ? "" : a.partySize }))}
           />
           {answers.eatingAlone === false && (
             <label className="flex flex-col gap-2">
-              <span className="text-sm text-white/80">
+              <span className="text-sm text-[color:var(--text)]">
                 How many people are eating this food/dish?
               </span>
               <input
@@ -130,7 +130,7 @@ export function QuestionnaireWizard({
                 onChange={(e) =>
                   setAnswers((a) => ({ ...a, partySize: e.target.value }))
                 }
-                className="input-dark w-32"
+                className="input-field w-32"
               />
             </label>
           )}
@@ -139,7 +139,7 @@ export function QuestionnaireWizard({
 
       {step === 3 && (
         <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-white/90">
+          <span className="text-sm font-medium text-[color:var(--text)]">
             Are you allergic to anything?
           </span>
           <input
@@ -149,27 +149,23 @@ export function QuestionnaireWizard({
             onChange={(e) =>
               setAnswers((a) => ({ ...a, allergies: e.target.value }))
             }
-            className="input-dark"
+            className="input-field"
           />
         </label>
       )}
 
       {step === 4 && (
         <fieldset className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-white/90">
+          <span className="text-sm font-medium text-[color:var(--text)]">
             Are you a vegan/vegetarian?
           </span>
-          <div className="flex gap-2">
+          <div className="pill-tabs">
             {(["none", "vegetarian", "vegan"] as const).map((v) => (
               <button
                 key={v}
                 type="button"
                 onClick={() => setAnswers((a) => ({ ...a, dietType: v }))}
-                className={`rounded px-3 py-1.5 text-sm capitalize transition-transform hover:scale-[1.02] ${
-                  answers.dietType === v
-                    ? "gradient-button"
-                    : "border border-white/20 text-white/70 hover:bg-white/5"
-                }`}
+                className={`pill-tab capitalize ${answers.dietType === v ? "active" : ""}`}
               >
                 {v === "none" ? "Neither" : v}
               </button>
@@ -180,7 +176,7 @@ export function QuestionnaireWizard({
 
       {step === 5 && (
         <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium text-white/90">
+          <span className="text-sm font-medium text-[color:var(--text)]">
             Do you have any dietary restrictions? If so, name them.
           </span>
           <input
@@ -190,7 +186,7 @@ export function QuestionnaireWizard({
             onChange={(e) =>
               setAnswers((a) => ({ ...a, dietaryRestrictions: e.target.value }))
             }
-            className="input-dark"
+            className="input-field"
           />
         </label>
       )}
@@ -225,22 +221,18 @@ function YesNo({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex gap-2">
+    <div className="pill-tabs">
       <button
         type="button"
         onClick={() => onChange(true)}
-        className={`rounded px-4 py-1.5 text-sm transition-transform hover:scale-[1.02] ${
-          value === true ? "gradient-button" : "border border-white/20 text-white/70 hover:bg-white/5"
-        }`}
+        className={`pill-tab ${value === true ? "active" : ""}`}
       >
         Yes
       </button>
       <button
         type="button"
         onClick={() => onChange(false)}
-        className={`rounded px-4 py-1.5 text-sm transition-transform hover:scale-[1.02] ${
-          value === false ? "gradient-button" : "border border-white/20 text-white/70 hover:bg-white/5"
-        }`}
+        className={`pill-tab ${value === false ? "active" : ""}`}
       >
         No
       </button>

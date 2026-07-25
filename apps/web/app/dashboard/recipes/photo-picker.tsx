@@ -54,32 +54,32 @@ export function PhotoPicker({
   }
 
   return (
-    <div className="animate-fade-scale-in flex flex-col gap-4 rounded border border-white/15 p-4">
-      <label className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-white/90">Upload a photo</span>
+    <div className="animate-fade-scale-in card flex flex-col gap-4 p-4">
+      <label className="button-soft flex flex-col gap-2 p-3">
+        <span className="text-sm font-medium text-[color:var(--text)]">📁 Upload image</span>
         <input
           type="file"
           accept="image/*"
           disabled={submitting}
           onChange={onChange}
-          className="text-sm text-white/70 file:mr-3 file:rounded file:border file:border-white/20 file:bg-transparent file:px-3 file:py-1.5 file:text-sm file:text-white file:transition-transform hover:file:scale-[1.02]"
+          className="text-sm text-[color:var(--text)] file:mr-3 file:rounded-[var(--radius-btn)] file:border-0 file:bg-[color:var(--bg-elevated)] file:px-3 file:py-1.5 file:text-sm file:text-[color:var(--text)]"
         />
       </label>
 
-      <label className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-white/90">Take a photo</span>
+      <label className="button-soft flex flex-col gap-2 p-3">
+        <span className="text-sm font-medium text-[color:var(--text)]">📷 Take a photo</span>
         <input
           type="file"
           accept="image/*"
           capture="environment"
           disabled={submitting}
           onChange={onChange}
-          className="text-sm text-white/70 file:mr-3 file:rounded file:border file:border-white/20 file:bg-transparent file:px-3 file:py-1.5 file:text-sm file:text-white file:transition-transform hover:file:scale-[1.02]"
+          className="text-sm text-[color:var(--text)] file:mr-3 file:rounded-[var(--radius-btn)] file:border-0 file:bg-[color:var(--bg-elevated)] file:px-3 file:py-1.5 file:text-sm file:text-[color:var(--text)]"
         />
       </label>
 
       {submitting && (
-        <p className="text-sm text-white/60">Analyzing your photo...</p>
+        <p className="text-sm text-[color:var(--text-muted)]">Analyzing your photo...</p>
       )}
     </div>
   );

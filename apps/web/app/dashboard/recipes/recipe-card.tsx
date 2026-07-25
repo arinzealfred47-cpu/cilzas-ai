@@ -23,27 +23,46 @@ export type SavedRecipe = {
   imageDataUrl?: string | null;
 };
 
+// Recipe History cards default to a short preview; a freshly generated
+// recipe (collapsible=false) always renders in full — independent
+// per-card expand state, so one card can be open while others stay closed.
+const PREVIEW_INGREDIENTS = 3;
+const PREVIEW_STEPS = 2;
+
 export function RecipeCard({
   recipe,
   onHealthified,
-  onDeleted,
+  onRequestDelete,
+  collapsible = false,
 }: {
   recipe: SavedRecipe;
   onHealthified?: (recipe: SavedRecipe) => void;
-  onDeleted?: (recipeId: string) => void;
+  onRequestDelete?: (recipeId: string) => void;
+  collapsible?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const flaggedNames = new Set(
     (recipe.healthFlags ?? []).map((f) => f.ingredientName),
   );
   const hasFlags = flaggedNames.size > 0;
   const displayName = formatRecipeName(recipe.title, recipe.mode);
+
+  const isExpanded = !collapsible || expanded;
+  const visibleIngredients = isExpanded
+    ? recipe.ingredients
+    : recipe.ingredients.slice(0, PREVIEW_INGREDIENTS);
+  const visibleSteps = isExpanded
+    ? recipe.steps
+    : recipe.steps.slice(0, PREVIEW_STEPS);
+  const hasMore =
+    recipe.ingredients.length > PREVIEW_INGREDIENTS ||
+    recipe.steps.length > PREVIEW_STEPS;
 
   async function handleHealthify() {
     setLoading(true);
@@ -88,56 +107,40 @@ export function RecipeCard({
     }
   }
 
-  async function handleConfirmDelete() {
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/recipes/${recipe.id}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        onDeleted?.(recipe.id);
-      } else {
-        const data = await res.json().catch(() => null);
-        setError(data?.error ?? "Could not delete this recipe.");
-      }
-    } catch {
-      setError("Network error. Please try again.");
-    } finally {
-      setDeleting(false);
-      setDeleteModalOpen(false);
-    }
+  function handleConfirmDelete() {
+    setDeleteModalOpen(false);
+    onRequestDelete?.(recipe.id);
   }
 
   return (
-    <div className="animate-fade-scale-in flex flex-col gap-3 rounded border border-white/15 p-4">
+    <div className="card animate-fade-scale-in flex flex-col gap-3 p-4">
       {recipe.imageDataUrl && (
         // eslint-disable-next-line @next/next/no-img-element -- data: URL, not an optimizable remote asset
         <img
           src={recipe.imageDataUrl}
           alt={displayName}
-          className="aspect-square w-full rounded object-cover"
+          className="aspect-square w-full rounded-[var(--radius-btn)] object-cover"
         />
       )}
 
       <div className="flex items-baseline justify-between gap-2">
-        <h3 className="text-base font-semibold text-white">{displayName}</h3>
-        <span className="shrink-0 text-xs text-white/50">
+        <h3 className="text-[1rem] font-semibold">{displayName}</h3>
+        <span className="shrink-0 text-xs text-[color:var(--text-faint)]">
           Serves {recipe.servings}
         </span>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase text-white/50">
-          Ingredients
-        </p>
-        <ul className="mt-1 list-disc pl-5 text-sm text-white/80">
-          {recipe.ingredients.map((ing, i) => (
+        <p className="section-label">Ingredients</p>
+        <ul className="mt-1 list-disc pl-5 text-sm text-[color:var(--text)]">
+          {visibleIngredients.map((ing, i) => (
             <li key={i}>
               {formatDualMeasurement(ing.quantity, ing.unit)} {ing.name}
               {flaggedNames.has(ing.name) && (
                 <span
                   title="Flagged for containing an unhealthy ingredient vector"
-                  className="ml-1 text-amber-400"
+                  className="ml-1"
+                  style={{ color: "var(--warn)" }}
                 >
                   ⚠
                 </span>
@@ -148,38 +151,52 @@ export function RecipeCard({
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase text-white/50">
-          Directions
-        </p>
-        <ol className="mt-1 list-decimal pl-5 text-sm text-white/80">
-          {recipe.steps.map((step, i) => (
+        <p className="section-label">Directions</p>
+        <ol className="mt-1 list-decimal pl-5 text-sm text-[color:var(--text)]">
+          {visibleSteps.map((step, i) => (
             <li key={i}>{annotateMeasurementsInText(step)}</li>
           ))}
         </ol>
       </div>
 
-      <div className="flex flex-wrap gap-2 border-t border-white/15 pt-3">
+      {collapsible && hasMore && (
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="button-soft self-start px-3 py-1 text-xs"
+        >
+          {isExpanded ? "Show Less" : "Show More"}
+        </button>
+      )}
+
+      <div
+        className="flex flex-wrap gap-2 border-t pt-3"
+        style={{ borderColor: "var(--border)" }}
+      >
         <button
           type="button"
           onClick={handleCopy}
-          className="button-outline px-3 py-1 text-xs"
+          className="chip"
+          title="Copy to clipboard"
         >
-          {copied ? "Copied!" : "Copy to Clipboard"}
+          📋 {copied ? "Copied!" : "Copy"}
         </button>
         <button
           type="button"
           onClick={() => setEmailModalOpen(true)}
-          className="button-outline px-3 py-1 text-xs"
+          className="chip"
+          title="Email recipe"
         >
-          Email Recipe
+          ✉️ Email
         </button>
-        {onDeleted && (
+        {onRequestDelete && (
           <button
             type="button"
             onClick={() => setDeleteModalOpen(true)}
-            className="rounded border border-red-400/40 px-3 py-1 text-xs text-red-400 transition-transform hover:scale-[1.02] hover:bg-red-400/10"
+            className="chip chip-danger"
+            title="Delete recipe"
           >
-            Delete Recipe
+            🗑️ Delete
           </button>
         )}
       </div>
@@ -190,7 +207,7 @@ export function RecipeCard({
             type="button"
             onClick={handleHealthify}
             disabled={loading}
-            className="gradient-button animate-pulse rounded-full px-4 py-2 text-sm font-semibold transition-transform hover:scale-105 disabled:animate-none disabled:opacity-60"
+            className="gradient-button animate-pulse px-4 py-2 text-sm font-semibold disabled:animate-none"
           >
             {loading ? "Generating healthy version..." : "Generate Healthy Version"}
           </button>
@@ -208,9 +225,9 @@ export function RecipeCard({
       <ConfirmModal
         open={deleteModalOpen}
         title="Delete this recipe?"
-        message={`"${displayName}" will be permanently removed from your Recipe History. This can't be undone.`}
+        message={`"${displayName}" will be moved out for 5 minutes so you can undo, then permanently removed.`}
         confirmLabel="Delete"
-        confirming={deleting}
+        confirming={false}
         onCancel={() => setDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
       />

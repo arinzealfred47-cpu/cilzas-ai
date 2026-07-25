@@ -15,7 +15,7 @@ export default async function AccountDeletedPage({
           Your most recent payment was made more than 28 days ago, so it's no longer eligible for an
           automatic refund.
         </p>
-        <p className="text-sm text-white/60">
+        <p className="text-sm text-[color:var(--text-muted)]">
           Your account and all associated data have still been permanently deleted.
         </p>
       </div>
@@ -25,7 +25,7 @@ export default async function AccountDeletedPage({
   return (
     <div className="mx-auto flex w-full max-w-sm flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
       <h1 className="text-xl font-semibold">Account deleted</h1>
-      <p className="text-sm text-white/60">
+      <p className="text-sm text-[color:var(--text-muted)]">
         {refund === "approved"
           ? "Your account and all associated data have been permanently deleted, and your most recent payment has been refunded."
           : "Your account and all associated data have been permanently deleted."}

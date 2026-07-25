@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-import { Colors, Fonts } from '@/constants/theme';
+import { Fonts } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -17,6 +18,8 @@ export function EmailModal({
 }) {
   const [email, setEmail] = useState('');
   const valid = EMAIL_PATTERN.test(email);
+  const theme = useTheme();
+  const styles = getStyles(theme);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
@@ -28,7 +31,7 @@ export function EmailModal({
             autoFocus
             style={styles.input}
             placeholder="recipient@example.com"
-            placeholderTextColor={Colors.dark.textSecondary}
+            placeholderTextColor={theme.textFaint}
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
@@ -55,47 +58,49 @@ export function EmailModal({
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 360,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    backgroundColor: Colors.dark.background,
-    padding: 20,
-  },
-  title: { fontFamily: Fonts.semiBold, fontSize: 16, color: Colors.dark.text },
-  message: { fontFamily: Fonts.sans, fontSize: 13, color: Colors.dark.textSecondary, marginTop: 8 },
-  input: {
-    fontFamily: Fonts.sans,
-    color: Colors.dark.text,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 6,
-    padding: 10,
-    marginTop: 12,
-    fontSize: 14,
-  },
-  actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 20 },
-  cancelButton: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  cancelText: { fontFamily: Fonts.sans, fontSize: 13, color: Colors.dark.text },
-  sendButton: { backgroundColor: '#00FF87', borderRadius: 6, paddingHorizontal: 14, paddingVertical: 8 },
-  disabled: { opacity: 0.4 },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
-  sendText: { fontFamily: Fonts.semiBold, fontSize: 13, color: '#000' },
-});
+function getStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 20,
+    },
+    card: {
+      width: '100%',
+      maxWidth: 360,
+      borderRadius: 22,
+      backgroundColor: theme.bgElevated,
+      padding: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.2,
+      shadowRadius: 24,
+      elevation: 6,
+    },
+    title: { fontFamily: Fonts.semiBold, fontSize: 16, color: theme.text },
+    message: { fontFamily: Fonts.sans, fontSize: 13, color: theme.textMuted, marginTop: 8 },
+    input: {
+      fontFamily: Fonts.sans,
+      color: theme.text,
+      backgroundColor: theme.bgSoft,
+      borderRadius: 10,
+      padding: 10,
+      marginTop: 12,
+      fontSize: 14,
+    },
+    actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 20 },
+    cancelButton: {
+      backgroundColor: theme.bgSoft,
+      borderRadius: 14,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+    },
+    cancelText: { fontFamily: Fonts.sans, fontSize: 13, color: theme.text },
+    sendButton: { backgroundColor: '#86F0C6', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8 },
+    disabled: { opacity: 0.4 },
+    pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+    sendText: { fontFamily: Fonts.semiBold, fontSize: 13, color: '#0C2119' },
+  });
+}

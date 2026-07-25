@@ -18,10 +18,13 @@ export function EmailModal({
   const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   return (
-    <div className="animate-fade-scale-in fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm transition-opacity">
-      <div className="animate-fade-scale-in w-full max-w-sm rounded-lg border border-white/15 bg-black p-5 text-white shadow-xl">
-        <h3 className="text-base font-semibold">Email this recipe</h3>
-        <p className="mt-2 text-sm text-white/60">
+    <div
+      className="animate-fade-scale-in fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+      style={{ background: "var(--scrim)" }}
+    >
+      <div className="animate-fade-scale-in card w-full max-w-sm p-5">
+        <h3 className="text-[1rem] font-semibold">Email this recipe</h3>
+        <p className="mt-2 text-sm text-[color:var(--text-muted)]">
           Opens your email app with the recipe pre-filled.
         </p>
         <input
@@ -30,13 +33,13 @@ export function EmailModal({
           placeholder="recipient@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="input-dark mt-3 w-full"
+          className="input-field mt-3 w-full"
         />
         <div className="mt-5 flex justify-end gap-2">
           <button
             type="button"
             onClick={onCancel}
-            className="button-outline text-sm"
+            className="button-soft text-sm"
           >
             Cancel
           </button>

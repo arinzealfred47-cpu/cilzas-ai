@@ -1,14 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import type { CustomModeInput, QuestionnaireModeInput } from "@repo/recipes";
 import { CustomForm } from "./custom-form";
 import { QuestionnaireWizard } from "./questionnaire-wizard";
 import { PhotoPicker } from "./photo-picker";
 import { RecipeCard, type SavedRecipe } from "./recipe-card";
+import { DeletionBanner } from "./deletion-banner";
 
 type Mode = "custom" | "questionnaire" | "photo";
+
+const DELETION_UNDO_MS = 5 * 60 * 1000;
+
+type PendingDeletion = {
+  title: string;
+  expiresAt: number;
+};
 
 export default function RecipesPage() {
   const [mode, setMode] = useState<Mode>("custom");
@@ -17,6 +24,10 @@ export default function RecipesPage() {
   const [result, setResult] = useState<SavedRecipe | null>(null);
   const [history, setHistory] = useState<SavedRecipe[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [pendingDeletions, setPendingDeletions] = useState<
+    Record<string, PendingDeletion>
+  >({});
+  const timeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   async function loadHistory() {
     setHistoryLoading(true);
@@ -31,6 +42,11 @@ export default function RecipesPage() {
 
   useEffect(() => {
     loadHistory();
+    return () => {
+      // Clear any in-flight undo timers on unmount — matches the mockup's
+      // own behavior of not persisting pending deletions across sessions.
+      Object.values(timeoutsRef.current).forEach(clearTimeout);
+    };
   }, []);
 
   async function handleSubmit(input: CustomModeInput | QuestionnaireModeInput) {
@@ -75,48 +91,73 @@ export default function RecipesPage() {
     loadHistory();
   }
 
-  function handleDeleted(recipeId: string) {
-    setHistory((prev) => prev.filter((r) => r.id !== recipeId));
-    setResult((prev) => (prev?.id === recipeId ? null : prev));
+  // Deletion is deferred: confirming starts a 5-minute undo window and only
+  // performs the real DELETE call once the timer actually fires. Undo just
+  // clears the timer — no network request is ever made in that case.
+  function handleRequestDelete(recipeId: string) {
+    const recipe = history.find((r) => r.id === recipeId) ?? (result?.id === recipeId ? result : null);
+    if (!recipe) return;
+
+    const expiresAt = Date.now() + DELETION_UNDO_MS;
+    setPendingDeletions((prev) => ({
+      ...prev,
+      [recipeId]: { title: recipe.title, expiresAt },
+    }));
+
+    timeoutsRef.current[recipeId] = setTimeout(() => {
+      finalizeDeletion(recipeId);
+    }, DELETION_UNDO_MS);
   }
 
-  return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 py-16">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Recipe Generator</h1>
-        <Link href="/dashboard" className="text-sm text-white/60 underline hover:text-white/80">
-          Back to dashboard
-        </Link>
-      </div>
+  async function finalizeDeletion(recipeId: string) {
+    delete timeoutsRef.current[recipeId];
+    try {
+      await fetch(`/api/recipes/${recipeId}`, { method: "DELETE" });
+    } finally {
+      setHistory((prev) => prev.filter((r) => r.id !== recipeId));
+      setResult((prev) => (prev?.id === recipeId ? null : prev));
+      setPendingDeletions((prev) => {
+        const next = { ...prev };
+        delete next[recipeId];
+        return next;
+      });
+    }
+  }
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setMode("custom")}
-          className={`rounded-full px-4 py-1.5 text-sm ${
-            mode === "custom" ? "gradient-button" : "border border-white/20 text-white/70 hover:bg-white/5"
-          }`}
-        >
-          Custom
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("questionnaire")}
-          className={`rounded-full px-4 py-1.5 text-sm ${
-            mode === "questionnaire" ? "gradient-button" : "border border-white/20 text-white/70 hover:bg-white/5"
-          }`}
-        >
-          Recommend for me
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("photo")}
-          className={`rounded-full px-4 py-1.5 text-sm ${
-            mode === "photo" ? "gradient-button" : "border border-white/20 text-white/70 hover:bg-white/5"
-          }`}
-        >
-          From Photo
-        </button>
+  function handleUndoDelete(recipeId: string) {
+    const timeout = timeoutsRef.current[recipeId];
+    if (timeout) {
+      clearTimeout(timeout);
+      delete timeoutsRef.current[recipeId];
+    }
+    setPendingDeletions((prev) => {
+      const next = { ...prev };
+      delete next[recipeId];
+      return next;
+    });
+  }
+
+  const modeButtons: { key: Mode; label: string }[] = [
+    { key: "custom", label: "Custom" },
+    { key: "questionnaire", label: "Recommend for me" },
+    { key: "photo", label: "From Photo" },
+  ];
+
+  return (
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 py-10 sm:py-16">
+      <h1 className="text-[1.25rem] font-bold tracking-[-0.01em]">Recipe Generator</h1>
+
+      <div className="pill-tabs">
+        {modeButtons.map((m) => (
+          <button
+            key={m.key}
+            type="button"
+            onClick={() => setMode(m.key)}
+            className={`pill-tab ${mode === m.key ? "active" : ""}`}
+          >
+            {m.label}
+          </button>
+        ))}
       </div>
 
       {mode === "custom" && (
@@ -130,45 +171,55 @@ export default function RecipesPage() {
       )}
 
       {submitting && (
-        <p className="text-sm text-white/60">Generating your recipe...</p>
+        <p className="text-sm text-[color:var(--text-muted)]">Generating your recipe...</p>
       )}
 
       {error && <p className="error-box">{error}</p>}
 
-      {result && (
+      {result && !pendingDeletions[result.id] && (
         <div>
-          <p className="mb-2 text-xs font-medium uppercase text-white/50">
-            Just generated
-          </p>
+          <p className="section-label mb-2">Just generated</p>
           <RecipeCard
             recipe={result}
             onHealthified={handleHealthified}
-            onDeleted={handleDeleted}
+            onRequestDelete={handleRequestDelete}
           />
         </div>
       )}
 
-      <div>
-        <h2 className="mb-3 text-sm font-medium uppercase text-white/50">
-          Recipe History
-        </h2>
+      <div id="history">
+        <h2 className="section-label mb-3">Recipe History</h2>
         {historyLoading && (
-          <p className="text-sm text-white/60">Loading...</p>
+          <p className="text-sm text-[color:var(--text-muted)]">Loading...</p>
         )}
         {!historyLoading && history.length === 0 && (
-          <p className="text-sm text-white/60">
+          <p className="text-sm text-[color:var(--text-muted)]">
             No recipes generated yet.
           </p>
         )}
         <div className="flex flex-col gap-3">
-          {history.map((r) => (
-            <RecipeCard
-              key={r.id}
-              recipe={r}
-              onHealthified={handleHealthified}
-              onDeleted={handleDeleted}
-            />
-          ))}
+          {history.map((r) => {
+            const pending = pendingDeletions[r.id];
+            if (pending) {
+              return (
+                <DeletionBanner
+                  key={r.id}
+                  title={pending.title}
+                  expiresAt={pending.expiresAt}
+                  onUndo={() => handleUndoDelete(r.id)}
+                />
+              );
+            }
+            return (
+              <RecipeCard
+                key={r.id}
+                recipe={r}
+                onHealthified={handleHealthified}
+                onRequestDelete={handleRequestDelete}
+                collapsible
+              />
+            );
+          })}
         </div>
       </div>
     </div>

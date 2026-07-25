@@ -14,6 +14,7 @@ import {
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { configureRevenueCat } from '@/lib/revenuecat';
+import { ThemeModeProvider } from '@/contexts/theme-context';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -59,8 +60,10 @@ export default function RootLayout() {
         publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
         tokenCache={tokenCache}
       >
-        <AnimatedSplashOverlay />
-        <RootNavigator />
+        <ThemeModeProvider>
+          <AnimatedSplashOverlay />
+          <RootNavigator />
+        </ThemeModeProvider>
       </ClerkProvider>
     </ErrorBoundary>
   );

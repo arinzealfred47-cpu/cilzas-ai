@@ -8,7 +8,9 @@ import RevenueCatUI from 'react-native-purchases-ui';
 import { ThemedText } from '@/components/themed-text';
 import { WebOnlyNotice } from '@/components/billing/web-only-notice';
 import { ConfirmModal } from '@/components/confirm-modal';
-import { Colors, Spacing } from '@/constants/theme';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { platformMatchesDevice } from '@/lib/revenuecat';
 
 const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:3000';
@@ -21,6 +23,8 @@ type PendingAction = 'cancel' | 'delete' | null;
 export default function SettingsScreen() {
   const { sessionId, signOut, getToken } = useAuth();
   const router = useRouter();
+  const theme = useTheme();
+  const styles = getStyles(theme);
   const [signupPlatform, setSignupPlatform] = useState<SignupPlatform | null>(null);
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -78,6 +82,11 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <View style={styles.section}>
+        <ThemedText type="small">Appearance</ThemedText>
+        <ThemeToggle />
+      </View>
+
       <View style={styles.section}>
         <ThemedText type="small">
           Signing out here only ends this device&apos;s session. Other devices
@@ -141,31 +150,31 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Colors.dark.background, padding: Spacing.four, gap: Spacing.five },
-  section: { gap: Spacing.three },
-  signOutButton: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    paddingVertical: 10,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  deleteButton: {
-    borderWidth: 1,
-    borderColor: 'rgba(248,113,113,0.4)',
-    paddingVertical: 10,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  deleteButtonText: {
-    color: '#f87171',
-  },
-  pressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.98 }],
-  },
-  signOutButtonText: {
-    color: '#fff',
-  },
-});
+function getStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: theme.bg, padding: Spacing.four, gap: Spacing.five },
+    section: { gap: Spacing.three },
+    signOutButton: {
+      backgroundColor: theme.bgSoft,
+      paddingVertical: 10,
+      borderRadius: 14,
+      alignItems: 'center',
+    },
+    deleteButton: {
+      backgroundColor: theme.dangerBg,
+      paddingVertical: 10,
+      borderRadius: 14,
+      alignItems: 'center',
+    },
+    deleteButtonText: {
+      color: theme.danger,
+    },
+    pressed: {
+      opacity: 0.85,
+      transform: [{ scale: 0.98 }],
+    },
+    signOutButtonText: {
+      color: theme.text,
+    },
+  });
+}

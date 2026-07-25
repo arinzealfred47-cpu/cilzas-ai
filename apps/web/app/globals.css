@@ -1,30 +1,83 @@
 @import "tailwindcss";
 
-/* Fixed brand theme — deep black / stark white / green gradient accent.
-   Intentionally not OS-adaptive (no prefers-color-scheme): this is the
-   app's one visual identity everywhere, not a light/dark toggle. */
+/* Design tokens — matches the Ingredas mockup's palette exactly.
+   Theme is switched by setting data-theme="dark"|"light" on <html>
+   (see theme-context.tsx) — no prefers-color-scheme media query here,
+   since the user's explicit choice always wins once made. */
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
-  --gradient-accent: linear-gradient(135deg, #00ff87 0%, #60efff 100%);
+  --accent-a: #86f0c6;
+  --accent-b: #8fdbff;
+  --gradient-soft: linear-gradient(135deg, var(--accent-a) 0%, var(--accent-b) 100%);
+  --accent-ink: #0c2119;
+  --radius-btn: 0.9rem;
+  --radius-pill: 999px;
+  --radius-card: 1.4rem;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html[data-theme="dark"] {
+  --bg: #131318;
+  --bg-elevated: #1b1c22;
+  --bg-soft: rgba(255, 255, 255, 0.05);
+  --bg-soft-hover: rgba(255, 255, 255, 0.09);
+  --text: #ededf3;
+  --text-muted: #a3a3b2;
+  --text-faint: #6f6f80;
+  --border: rgba(255, 255, 255, 0.08);
+  --danger: #ffa8a0;
+  --danger-bg: rgba(255, 138, 128, 0.12);
+  --danger-fill: rgba(255, 138, 128, 0.16);
+  --warn: #ffd9a0;
+  --ring: rgba(143, 219, 255, 0.3);
+  --shadow-card: 0 14px 34px rgba(0, 0, 0, 0.32);
+  --shadow-btn: 0 8px 22px rgba(134, 240, 198, 0.18);
+  --scrim: rgba(10, 10, 14, 0.6);
+  --blob-opacity: 0.16;
+}
+
+html[data-theme="light"] {
+  --bg: #f2f0ea;
+  --bg-elevated: #ffffff;
+  --bg-soft: rgba(35, 30, 20, 0.05);
+  --bg-soft-hover: rgba(35, 30, 20, 0.09);
+  --text: #26262e;
+  --text-muted: #63636e;
+  --text-faint: #95959e;
+  --border: rgba(20, 20, 30, 0.09);
+  --danger: #c13b2e;
+  --danger-bg: rgba(193, 59, 46, 0.08);
+  --danger-fill: rgba(193, 59, 46, 0.14);
+  --warn: #8a5a00;
+  --ring: rgba(34, 150, 190, 0.22);
+  --shadow-card: 0 10px 24px rgba(30, 26, 20, 0.1);
+  --shadow-btn: 0 8px 20px rgba(30, 170, 120, 0.2);
+  --scrim: rgba(40, 36, 30, 0.4);
+  --blob-opacity: 0.1;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
   --font-sans: var(--font-inter);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 * {
-  transition-property: color, background-color, border-color, opacity, transform;
-  transition-duration: 150ms;
-  transition-timing-function: ease-out;
+  transition-property: color, background-color, border-color, box-shadow, opacity;
+  transition-duration: 260ms;
+  transition-timing-function: var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
 }
 
 @keyframes fade-scale-in {
@@ -37,57 +90,246 @@ body {
     transform: scale(1);
   }
 }
-
 .animate-fade-scale-in {
-  animation: fade-scale-in 150ms ease-out;
+  animation: fade-scale-in 260ms var(--ease);
 }
 
-/* Reusable dark-theme primitives — same look wherever a primary button,
-   input, secondary button, or error message appears across the app. */
+@keyframes in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-in-up {
+  animation: in-up 560ms var(--ease) both;
+}
+
+@keyframes glow-fade {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes drift-1 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(40px, 30px);
+  }
+}
+@keyframes drift-2 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-30px, -25px);
+  }
+}
+
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: var(--blob-opacity);
+  pointer-events: none;
+  z-index: 0;
+}
+.bg-blob-a {
+  width: 420px;
+  height: 420px;
+  background: var(--accent-a);
+  animation: drift-1 22s ease-in-out infinite;
+}
+.bg-blob-b {
+  width: 380px;
+  height: 380px;
+  background: var(--accent-b);
+  animation: drift-2 26s ease-in-out infinite;
+}
+
+/* Reusable primitives — same look wherever a primary button, input,
+   secondary button, card, or error message appears across the app. */
 .gradient-button {
-  background-image: var(--gradient-accent);
-  color: #000000;
+  position: relative;
+  background-image: var(--gradient-soft);
+  color: var(--accent-ink);
   font-weight: 600;
-  border-radius: 0.375rem;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-btn);
+}
+.gradient-button::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: inherit;
+  background-image: var(--gradient-soft);
+  filter: blur(11px);
+  z-index: -1;
+  opacity: 0.7;
+  animation: glow-fade 3.6s ease-in-out infinite;
 }
 .gradient-button:hover {
-  transform: scale(1.02);
+  transform: translateY(-2px) scale(1.02);
+}
+.gradient-button:active {
+  transform: translateY(0) scale(0.98);
 }
 .gradient-button:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
+  box-shadow: none;
   transform: none;
 }
+.gradient-button:disabled::after {
+  display: none;
+}
 
-.input-dark {
-  border-radius: 0.375rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
+.input-field {
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text);
   padding: 0.5rem 0.75rem;
 }
-.input-dark::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+.input-field::placeholder {
+  color: var(--text-faint);
 }
-.input-dark:focus {
+.input-field:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: transparent;
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .button-outline {
-  border-radius: 0.375rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border);
+  color: var(--text);
   padding: 0.5rem 0.75rem;
+  background: transparent;
 }
 .button-outline:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-soft);
+}
+
+.button-soft {
+  border-radius: var(--radius-btn);
+  border: none;
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-soft);
+}
+.button-soft:hover {
+  background: var(--bg-soft-hover);
 }
 
 .error-box {
-  border-radius: 0.375rem;
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  background: rgba(239, 68, 68, 0.1);
-  color: #f87171;
+  border-radius: var(--radius-btn);
+  border: none;
+  background: var(--danger-bg);
+  color: var(--danger);
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
+}
+
+.card {
+  border-radius: var(--radius-card);
+  border: none;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-card);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: var(--radius-pill);
+  background: var(--bg-soft);
+  color: var(--text-muted);
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+}
+.chip:hover {
+  background: var(--bg-soft-hover);
+  color: var(--text);
+}
+.chip-danger {
+  color: var(--danger);
+}
+.chip-danger:hover {
+  background: var(--danger-bg);
+}
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--bg-soft);
+  padding: 0.4rem 0.6rem;
+}
+.stepper-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-weight: 700;
+  box-shadow: var(--shadow-card);
+}
+.stepper-btn:hover {
+  background-image: var(--gradient-soft);
+  color: var(--accent-ink);
+  transform: scale(1.12) rotate(-4deg);
+}
+.stepper-value {
+  min-width: 1.5rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.pill-tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--bg-soft);
+  padding: 0.25rem;
+}
+.pill-tab {
+  border-radius: var(--radius-pill);
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: none;
+  background: transparent;
+}
+.pill-tab.active {
+  background-image: var(--gradient-soft);
+  color: var(--accent-ink);
+  box-shadow: var(--shadow-btn);
 }

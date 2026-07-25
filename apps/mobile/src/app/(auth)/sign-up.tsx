@@ -6,7 +6,8 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { Link, useRouter } from 'expo-router';
 import { useSignUp, useSSO } from '@clerk/expo';
 
-import { Colors, Fonts, GradientColors } from '@/constants/theme';
+import { Fonts, GradientColors } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { CONSENTS, type ConsentKey } from './consents';
 import { clerkErrorCode, clerkErrorMessage } from './clerk-error';
 
@@ -16,6 +17,8 @@ export default function SignUpScreen() {
   const { signUp } = useSignUp();
   const { startSSOFlow } = useSSO();
   const router = useRouter();
+  const theme = useTheme();
+  const styles = getStyles(theme);
 
   const [step, setStep] = useState<Step>('details');
   const [email, setEmail] = useState('');
@@ -134,7 +137,7 @@ export default function SignUpScreen() {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor={Colors.dark.textSecondary}
+            placeholderTextColor={theme.textFaint}
             autoCapitalize="none"
             keyboardType="email-address"
             value={email}
@@ -143,7 +146,7 @@ export default function SignUpScreen() {
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor={Colors.dark.textSecondary}
+            placeholderTextColor={theme.textFaint}
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -199,7 +202,7 @@ export default function SignUpScreen() {
           <TextInput
             style={styles.input}
             placeholder="123456"
-            placeholderTextColor={Colors.dark.textSecondary}
+            placeholderTextColor={theme.textFaint}
             keyboardType="number-pad"
             maxLength={6}
             value={code}
@@ -220,47 +223,46 @@ export default function SignUpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', gap: 12, padding: 24, backgroundColor: Colors.dark.background },
-  title: { fontFamily: Fonts.semiBold, fontSize: 20, color: Colors.dark.text, marginBottom: 8 },
-  helperText: { fontFamily: Fonts.sans, color: Colors.dark.textSecondary, fontSize: 14 },
-  error: {
-    fontFamily: Fonts.sans,
-    color: '#f87171',
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    padding: 8,
-    borderRadius: 6,
-  },
-  input: {
-    fontFamily: Fonts.sans,
-    color: Colors.dark.text,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 6,
-    padding: 10,
-  },
-  checkboxRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  checkbox: { width: 18, height: 18, borderWidth: 1, borderColor: Colors.dark.textSecondary, borderRadius: 4 },
-  checkboxChecked: { backgroundColor: '#00FF87', borderColor: '#00FF87' },
-  checkboxLabel: { fontFamily: Fonts.sans, color: Colors.dark.text },
-  button: { padding: 12, borderRadius: 6, alignItems: 'center' },
-  buttonOutline: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    padding: 12,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
-  buttonDisabled: { opacity: 0.4 },
-  buttonText: { fontFamily: Fonts.semiBold, color: '#000' },
-  buttonOutlineText: { fontFamily: Fonts.sans, color: Colors.dark.text },
-  link: {
-    fontFamily: Fonts.sans,
-    marginTop: 8,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-    color: Colors.dark.textSecondary,
-  },
-});
+function getStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    container: { flex: 1, justifyContent: 'center', gap: 12, padding: 24, backgroundColor: theme.bg },
+    title: { fontFamily: Fonts.semiBold, fontSize: 20, color: theme.text, marginBottom: 8 },
+    helperText: { fontFamily: Fonts.sans, color: theme.textMuted, fontSize: 14 },
+    error: {
+      fontFamily: Fonts.sans,
+      color: theme.danger,
+      backgroundColor: theme.dangerBg,
+      padding: 8,
+      borderRadius: 14,
+    },
+    input: {
+      fontFamily: Fonts.sans,
+      color: theme.text,
+      backgroundColor: theme.bgSoft,
+      borderRadius: 14,
+      padding: 10,
+    },
+    checkboxRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    checkbox: { width: 18, height: 18, borderWidth: 1, borderColor: theme.border, borderRadius: 4 },
+    checkboxChecked: { backgroundColor: '#86F0C6', borderColor: '#86F0C6' },
+    checkboxLabel: { fontFamily: Fonts.sans, color: theme.text },
+    button: { padding: 12, borderRadius: 14, alignItems: 'center' },
+    buttonOutline: {
+      backgroundColor: theme.bgSoft,
+      padding: 12,
+      borderRadius: 14,
+      alignItems: 'center',
+    },
+    pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+    buttonDisabled: { opacity: 0.4 },
+    buttonText: { fontFamily: Fonts.semiBold, color: '#0C2119' },
+    buttonOutlineText: { fontFamily: Fonts.sans, color: theme.text },
+    link: {
+      fontFamily: Fonts.sans,
+      marginTop: 8,
+      textAlign: 'center',
+      textDecorationLine: 'underline',
+      color: theme.textMuted,
+    },
+  });
+}

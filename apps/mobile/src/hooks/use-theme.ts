@@ -1,5 +1,7 @@
 import { Colors } from '@/constants/theme';
+import { useThemeMode } from '@/contexts/theme-context';
 
 export function useTheme() {
-  return Colors.dark;
+  const { resolvedMode } = useThemeMode();
+  return Colors[resolvedMode];
 }

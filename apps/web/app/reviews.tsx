@@ -30,11 +30,15 @@ const REVIEWS: { name: string; quote: string; stars: 3 | 4 | 5 }[] = [
 
 function Stars({ count }: { count: number }) {
   return (
-    <div aria-label={`${count} out of 5 stars`} className="flex gap-1">
+    <div
+      aria-label={`${count} out of 5 stars`}
+      className="flex gap-1"
+      style={{ fontSize: "0.8rem", letterSpacing: "0.1em" }}
+    >
       {Array.from({ length: 5 }, (_, i) => (
         <span
           key={i}
-          className={i < count ? "text-[#00FF87]" : "text-white/20"}
+          style={{ color: i < count ? "var(--warn)" : "var(--text-faint)" }}
         >
           ★
         </span>
@@ -46,18 +50,17 @@ function Stars({ count }: { count: number }) {
 export function ReviewsSection({ title }: { title: string }) {
   return (
     <section className="w-full max-w-4xl">
-      <h2 className="mb-6 text-center text-lg font-medium text-white">
-        {title}
-      </h2>
+      <h2 className="section-label mb-6 text-center">{title}</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {REVIEWS.map((r) => (
-          <div
-            key={r.name}
-            className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4"
-          >
+          <div key={r.name} className="card flex flex-col gap-3 p-4">
             <Stars count={r.stars} />
-            <p className="text-sm text-white/80">&ldquo;{r.quote}&rdquo;</p>
-            <p className="text-xs text-white/40">{r.name}</p>
+            <p className="text-sm" style={{ color: "var(--text)" }}>
+              &ldquo;{r.quote}&rdquo;
+            </p>
+            <p className="text-xs" style={{ color: "var(--text-faint)" }}>
+              {r.name}
+            </p>
           </div>
         ))}
       </div>

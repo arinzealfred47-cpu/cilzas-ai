@@ -67,59 +67,61 @@ export default function SignInPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 px-4 py-16">
-      <h1 className="text-xl font-semibold">Sign in</h1>
+      <div className="card flex flex-col gap-6 p-6">
+        <h1 className="text-[1.25rem] font-bold tracking-[-0.01em]">Sign in</h1>
 
-      {error && <p className="error-box">{error}</p>}
+        {error && <p className="error-box">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="email"
-          required
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="input-dark"
-        />
-        <input
-          type="password"
-          required
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="input-dark"
-        />
-        <button
-          type="submit"
-          disabled={submitting}
-          className="gradient-button px-3 py-2"
-        >
-          Sign in
-        </button>
-
-        <div className="flex flex-col gap-2">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            type="email"
+            required
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input-field"
+          />
+          <input
+            type="password"
+            required
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="input-field"
+          />
           <button
-            type="button"
-            onClick={() => handleOAuth("oauth_google")}
-            className="button-outline"
+            type="submit"
+            disabled={submitting}
+            className="gradient-button px-3 py-2.5"
           >
-            Continue with Google
+            Sign in
           </button>
-          <button
-            type="button"
-            onClick={() => handleOAuth("oauth_apple")}
-            className="button-outline"
-          >
-            Continue with Apple
-          </button>
-        </div>
 
-        <p className="text-sm text-white/60">
-          Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="text-white underline hover:text-white/70">
-            Sign up
-          </Link>
-        </p>
-      </form>
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => handleOAuth("oauth_google")}
+              className="button-outline"
+            >
+              Continue with Google
+            </button>
+            <button
+              type="button"
+              onClick={() => handleOAuth("oauth_apple")}
+              className="button-outline"
+            >
+              Continue with Apple
+            </button>
+          </div>
+
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+            Don&apos;t have an account?{" "}
+            <Link href="/sign-up" className="font-medium" style={{ color: "var(--text)" }}>
+              Sign up
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }

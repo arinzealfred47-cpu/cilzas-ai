@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useAuth } from '@clerk/expo';
 import RevenueCatUI from 'react-native-purchases-ui';
 
-import { Colors } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { platformMatchesDevice } from '@/lib/revenuecat';
 import { WebOnlyNotice } from './web-only-notice';
 
@@ -16,6 +16,8 @@ type BillingStatus = {
 
 export function PaywallGate({ children }: { children: ReactNode }) {
   const { getToken } = useAuth();
+  const theme = useTheme();
+  const styles = getStyles(theme);
   const [status, setStatus] = useState<BillingStatus | null>(null);
   const [presenting, setPresenting] = useState(false);
 
@@ -77,6 +79,8 @@ export function PaywallGate({ children }: { children: ReactNode }) {
   return <View style={styles.blocked} />;
 }
 
-const styles = StyleSheet.create({
-  blocked: { flex: 1, backgroundColor: Colors.dark.background },
-});
+function getStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    blocked: { flex: 1, backgroundColor: theme.bg },
+  });
+}

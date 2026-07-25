@@ -7,12 +7,14 @@ import { useSignUp } from "@clerk/nextjs";
 import Turnstile from "react-turnstile";
 import { CONSENTS, type ConsentKey } from "../consents";
 import { clerkErrorCode, clerkErrorMessage } from "../clerk-error";
+import { useTheme } from "@/app/theme-context";
 
 type Step = "details" | "otp" | "turnstile";
 
 export default function SignUpPage() {
   const { signUp } = useSignUp();
   const router = useRouter();
+  const { theme } = useTheme();
 
   const [step, setStep] = useState<Step>("details");
   const [email, setEmail] = useState("");
@@ -141,7 +143,8 @@ export default function SignUpPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 px-4 py-16">
-      <h1 className="text-xl font-semibold">Create your account</h1>
+      <div className="card flex flex-col gap-6 p-6">
+      <h1 className="text-[1.25rem] font-bold tracking-[-0.01em]">Create your account</h1>
 
       {error && <p className="error-box">{error}</p>}
 
@@ -153,7 +156,7 @@ export default function SignUpPage() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="input-dark"
+            className="input-field"
           />
           <input
             type="password"
@@ -161,12 +164,12 @@ export default function SignUpPage() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="input-dark"
+            className="input-field"
           />
 
           <fieldset className="flex flex-col gap-2">
             {CONSENTS.map((c) => (
-              <label key={c.key} className="flex items-center gap-2 text-sm text-white/80">
+              <label key={c.key} className="flex items-center gap-2 text-sm" style={{ color: "var(--text-muted)" }}>
                 <input
                   type="checkbox"
                   checked={accepted[c.key]}
@@ -214,9 +217,9 @@ export default function SignUpPage() {
             </button>
           </div>
 
-          <p className="text-sm text-white/60">
+          <p className="text-sm text-[color:var(--text-muted)]">
             Already have an account?{" "}
-            <Link href="/sign-in" className="text-white underline hover:text-white/70">
+            <Link href="/sign-in" className="font-medium" style={{ color: "var(--text)" }}>
               Sign in
             </Link>
           </p>
@@ -225,7 +228,7 @@ export default function SignUpPage() {
 
       {step === "otp" && (
         <form onSubmit={handleOtpSubmit} className="flex flex-col gap-4">
-          <p className="text-sm text-white/60">
+          <p className="text-sm text-[color:var(--text-muted)]">
             Enter the 6-digit code we emailed to {email}.
           </p>
           <input
@@ -236,7 +239,7 @@ export default function SignUpPage() {
             placeholder="123456"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className="input-dark tracking-widest"
+            className="input-field tracking-widest"
           />
           <button
             type="submit"
@@ -250,17 +253,18 @@ export default function SignUpPage() {
 
       {step === "turnstile" && (
         <div className="flex flex-col items-center gap-4">
-          <p className="text-sm text-white/60">
+          <p className="text-sm text-[color:var(--text-muted)]">
             One last check before we finish creating your account.
           </p>
           <Turnstile
             sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-            theme="dark"
+            theme={theme}
             onSuccess={handleTurnstileSuccess}
             onError={() => setError("Bot verification failed. Please try again.")}
           />
         </div>
       )}
+      </div>
     </div>
   );
 }

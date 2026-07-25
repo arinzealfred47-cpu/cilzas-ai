@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { getBillingStateForUser } from "@/lib/billing";
 import { PaywallOverlay } from "@/components/billing/paywall-overlay";
+import { DashboardShell } from "./dashboard-shell";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { userId } = await auth();
@@ -10,5 +11,5 @@ export default async function DashboardLayout({ children }: { children: React.Re
     return <PaywallOverlay signupPlatform={billing.signupPlatform} />;
   }
 
-  return <>{children}</>;
+  return <DashboardShell>{children}</DashboardShell>;
 }

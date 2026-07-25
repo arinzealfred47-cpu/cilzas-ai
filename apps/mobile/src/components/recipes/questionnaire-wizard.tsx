@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { QuestionnaireModeInput } from '@repo/recipes';
 
-import { Colors, Fonts } from '@/constants/theme';
+import { Fonts } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 type Answers = {
   timeOfDay: string;
@@ -44,6 +45,8 @@ function isStepAnswered(step: number, a: Answers): boolean {
 }
 
 function YesNo({ value, onChange }: { value: boolean | null; onChange: (v: boolean) => void }) {
+  const theme = useTheme();
+  const styles = getStyles(theme);
   return (
     <View style={styles.choiceRow}>
       <Pressable
@@ -77,6 +80,8 @@ export function QuestionnaireWizard({
   onSubmit: (input: QuestionnaireModeInput) => void;
   submitting: boolean;
 }) {
+  const theme = useTheme();
+  const styles = getStyles(theme);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>(EMPTY_ANSWERS);
   const totalSteps = 6;
@@ -115,7 +120,7 @@ export function QuestionnaireWizard({
           <TextInput
             style={styles.input}
             placeholder="e.g. morning, 7pm, lunchtime"
-            placeholderTextColor={Colors.dark.textSecondary}
+            placeholderTextColor={theme.textFaint}
             value={answers.timeOfDay}
             onChangeText={(v) => setAnswers((a) => ({ ...a, timeOfDay: v }))}
           />
@@ -141,7 +146,7 @@ export function QuestionnaireWizard({
               <Text style={styles.question}>How many people are eating this food/dish?</Text>
               <TextInput
                 style={styles.input}
-                placeholderTextColor={Colors.dark.textSecondary}
+                placeholderTextColor={theme.textFaint}
                 keyboardType="number-pad"
                 value={answers.partySize}
                 onChangeText={(v) => setAnswers((a) => ({ ...a, partySize: v }))}
@@ -157,7 +162,7 @@ export function QuestionnaireWizard({
           <TextInput
             style={styles.input}
             placeholder="e.g. peanuts, shellfish, or 'none'"
-            placeholderTextColor={Colors.dark.textSecondary}
+            placeholderTextColor={theme.textFaint}
             value={answers.allergies}
             onChangeText={(v) => setAnswers((a) => ({ ...a, allergies: v }))}
           />
@@ -193,7 +198,7 @@ export function QuestionnaireWizard({
           <TextInput
             style={styles.input}
             placeholder="e.g. gluten-free, low-sodium, or 'none'"
-            placeholderTextColor={Colors.dark.textSecondary}
+            placeholderTextColor={theme.textFaint}
             value={answers.dietaryRestrictions}
             onChangeText={(v) => setAnswers((a) => ({ ...a, dietaryRestrictions: v }))}
           />
@@ -220,42 +225,40 @@ export function QuestionnaireWizard({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 12,
-    padding: 14,
-    gap: 12,
-  },
-  progress: { fontFamily: Fonts.sans, fontSize: 11, color: Colors.dark.textSecondary },
-  field: { gap: 8 },
-  question: { fontFamily: Fonts.semiBold, fontSize: 14, color: Colors.dark.text },
-  input: {
-    fontFamily: Fonts.sans,
-    color: Colors.dark.text,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 6,
-    padding: 10,
-  },
-  choiceRow: { flexDirection: 'row', gap: 8 },
-  choiceButton: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  choiceButtonActive: { backgroundColor: '#00FF87', borderColor: '#00FF87' },
-  choiceText: { fontFamily: Fonts.sans, fontSize: 13, textTransform: 'capitalize', color: Colors.dark.text },
-  choiceTextActive: { fontFamily: Fonts.semiBold, fontSize: 13, color: '#000', textTransform: 'capitalize' },
-  nav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
-  backText: { fontFamily: Fonts.sans, fontSize: 13, color: Colors.dark.textSecondary },
-  disabled: { opacity: 0.3 },
-  nextButton: { backgroundColor: '#00FF87', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8 },
-  disabledButton: { opacity: 0.4 },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
-  nextText: { fontFamily: Fonts.semiBold, color: '#000', fontSize: 13 },
-});
+function getStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    container: {
+      borderRadius: 22,
+      backgroundColor: theme.bgElevated,
+      padding: 14,
+      gap: 12,
+    },
+    progress: { fontFamily: Fonts.sans, fontSize: 11, color: theme.textFaint },
+    field: { gap: 8 },
+    question: { fontFamily: Fonts.semiBold, fontSize: 14, color: theme.text },
+    input: {
+      fontFamily: Fonts.sans,
+      color: theme.text,
+      backgroundColor: theme.bgSoft,
+      borderRadius: 10,
+      padding: 10,
+    },
+    choiceRow: { flexDirection: 'row', gap: 8 },
+    choiceButton: {
+      backgroundColor: theme.bgSoft,
+      borderRadius: 999,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+    },
+    choiceButtonActive: { backgroundColor: '#86F0C6' },
+    choiceText: { fontFamily: Fonts.sans, fontSize: 13, textTransform: 'capitalize', color: theme.textMuted },
+    choiceTextActive: { fontFamily: Fonts.semiBold, fontSize: 13, color: '#0C2119', textTransform: 'capitalize' },
+    nav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
+    backText: { fontFamily: Fonts.sans, fontSize: 13, color: theme.textMuted },
+    disabled: { opacity: 0.3 },
+    nextButton: { backgroundColor: '#86F0C6', borderRadius: 999, paddingHorizontal: 16, paddingVertical: 8 },
+    disabledButton: { opacity: 0.4 },
+    pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+    nextText: { fontFamily: Fonts.semiBold, color: '#0C2119', fontSize: 13 },
+  });
+}

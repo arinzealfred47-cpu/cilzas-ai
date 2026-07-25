@@ -55,49 +55,62 @@ export default function SettingsPage() {
     : "This permanently deletes your account and all of its data — this can't be undone. If your most recent payment was within the last 28 days, it will be automatically refunded.";
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 px-4 py-16">
-      <h1 className="text-xl font-semibold">Settings</h1>
-      <p className="text-sm text-white/60">
-        Signing out here only ends this device&apos;s session. Any other
-        devices you&apos;re signed in on stay signed in.
-      </p>
-      <button onClick={handleSignOut} className="gradient-button px-3 py-2">
-        Sign out
-      </button>
+    <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-4 py-10 sm:py-16">
+      <h1 className="text-[1.25rem] font-bold tracking-[-0.01em]">Settings</h1>
+
+      <section className="card flex flex-col gap-4 p-5">
+        <p className="section-label">Account</p>
+        <p className="text-[0.8125rem]" style={{ color: "var(--text-muted)" }}>
+          Signing out here only ends this device&apos;s session. Any other
+          devices you&apos;re signed in on stay signed in.
+        </p>
+        <button onClick={handleSignOut} className="gradient-button px-4 py-2.5">
+          Sign out
+        </button>
+      </section>
 
       {signupPlatform === "WEB" && (
-        <form action="/api/billing/portal" method="POST">
-          <button type="submit" className="button-outline w-full px-3 py-2">
-            Manage Subscription
-          </button>
-        </form>
+        <section className="card flex flex-col gap-3 p-5">
+          <p className="section-label">Subscription</p>
+          <form action="/api/billing/portal" method="POST">
+            <button type="submit" className="button-soft w-full px-3 py-2.5">
+              Manage Subscription
+            </button>
+          </form>
+        </section>
       )}
 
       {isMobileSignup && (
-        <a
-          href={signupPlatform === "IOS" ? process.env.NEXT_PUBLIC_APP_STORE_URL : process.env.NEXT_PUBLIC_PLAY_STORE_URL}
-          className="button-outline px-3 py-2 text-center"
-        >
-          Open the app on your phone to manage your subscription
-        </a>
+        <section className="card flex flex-col gap-3 p-5">
+          <p className="section-label">Subscription</p>
+          <a
+            href={signupPlatform === "IOS" ? process.env.NEXT_PUBLIC_APP_STORE_URL : process.env.NEXT_PUBLIC_PLAY_STORE_URL}
+            className="button-soft px-3 py-2.5 text-center"
+          >
+            Open the app on your phone to manage your subscription
+          </a>
+        </section>
       )}
 
-      <div className="flex flex-col gap-2 border-t border-white/15 pt-6">
+      <section className="card flex flex-col gap-2 p-5">
+        <p className="section-label" style={{ color: "var(--danger)" }}>
+          Danger Zone
+        </p>
         <button
           type="button"
           onClick={() => setPendingAction("cancel")}
-          className="button-outline px-3 py-2"
+          className="button-soft px-3 py-2.5"
         >
           Cancel Subscription
         </button>
         <button
           type="button"
           onClick={() => setPendingAction("delete")}
-          className="rounded border border-red-400/40 px-3 py-2 text-sm text-red-400 transition-transform hover:scale-[1.02] hover:bg-red-400/10"
+          className="chip chip-danger justify-center px-3 py-2.5 text-sm"
         >
           Delete Account
         </button>
-      </div>
+      </section>
 
       <ConfirmModal
         open={pendingAction !== null}

@@ -2,10 +2,11 @@ import { Pressable } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 
-import { Colors } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 function SettingsGearButton() {
   const router = useRouter();
+  const theme = useTheme();
   return (
     <Pressable
       onPress={() => router.push('/settings')}
@@ -14,7 +15,7 @@ function SettingsGearButton() {
     >
       <SymbolView
         name={{ ios: 'gearshape', android: 'settings', web: 'settings' }}
-        tintColor={Colors.dark.text}
+        tintColor={theme.text}
         size={22}
       />
     </Pressable>
@@ -22,11 +23,13 @@ function SettingsGearButton() {
 }
 
 export default function AppLayout() {
+  const theme = useTheme();
+
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: Colors.dark.background },
-        headerTintColor: Colors.dark.text,
+        headerStyle: { backgroundColor: theme.bgElevated },
+        headerTintColor: theme.text,
       }}
     >
       <Stack.Screen

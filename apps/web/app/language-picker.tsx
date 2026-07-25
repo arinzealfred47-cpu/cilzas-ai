@@ -44,24 +44,25 @@ export function LanguagePicker() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm text-white"
+        className="button-soft flex w-full items-center justify-between px-4 py-2 text-sm"
       >
         <span>
           {current?.name ?? "English"}{" "}
-          <span className="text-white/50">({current?.nativeName})</span>
+          <span style={{ color: "var(--text-faint)" }}>({current?.nativeName})</span>
         </span>
-        <span className="text-white/50">▾</span>
+        <span style={{ color: "var(--text-faint)" }}>▾</span>
       </button>
 
       {open && (
-        <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-lg border border-white/15 bg-black shadow-xl">
+        <div className="card absolute z-20 mt-2 w-full overflow-hidden">
           <input
             autoFocus
             type="text"
             placeholder={t.languageSearchPlaceholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full border-b border-white/15 bg-transparent px-4 py-2 text-sm text-white outline-none placeholder:text-white/40"
+            className="w-full border-b bg-transparent px-4 py-2 text-sm outline-none"
+            style={{ borderColor: "var(--border)", color: "var(--text)" }}
           />
           <ul className="max-h-64 overflow-y-auto">
             {filtered.map((l) => (
@@ -69,17 +70,18 @@ export function LanguagePicker() {
                 <button
                   type="button"
                   onClick={() => selectLanguage(l.code)}
-                  className={`flex w-full items-center justify-between px-4 py-2 text-left text-sm hover:bg-white/10 ${
-                    l.code === locale ? "text-[#60EFFF]" : "text-white"
-                  }`}
+                  className="flex w-full items-center justify-between px-4 py-2 text-left text-sm hover:bg-[color:var(--bg-soft-hover)]"
+                  style={{ color: l.code === locale ? "var(--accent-b)" : "var(--text)" }}
                 >
                   <span>{l.name}</span>
-                  <span className="text-white/40">{l.nativeName}</span>
+                  <span style={{ color: "var(--text-faint)" }}>{l.nativeName}</span>
                 </button>
               </li>
             ))}
             {filtered.length === 0 && (
-              <li className="px-4 py-3 text-sm text-white/40">No matches</li>
+              <li className="px-4 py-3 text-sm" style={{ color: "var(--text-faint)" }}>
+                No matches
+              </li>
             )}
           </ul>
         </div>

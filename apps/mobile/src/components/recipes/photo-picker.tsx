@@ -3,7 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@clerk/expo';
 import type { SavedRecipe } from './recipe-card';
-import { Colors, Fonts } from '@/constants/theme';
+import { Fonts } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:3000';
 
@@ -15,6 +16,8 @@ export function PhotoPicker({
   onError: (message: string) => void;
 }) {
   const { getToken } = useAuth();
+  const theme = useTheme();
+  const styles = getStyles(theme);
   const [submitting, setSubmitting] = useState(false);
 
   async function analyze(asset: ImagePicker.ImagePickerAsset) {
@@ -93,31 +96,32 @@ export function PhotoPicker({
         disabled={submitting}
         onPress={pickFromGallery}
       >
-        <Text style={styles.buttonText}>Upload from Gallery</Text>
+        <Text style={styles.buttonText}>📁 Upload image</Text>
       </Pressable>
       <Pressable
         style={({ pressed }) => [styles.button, submitting && styles.buttonDisabled, pressed && styles.pressed]}
         disabled={submitting}
         onPress={takePhoto}
       >
-        <Text style={styles.buttonText}>Take Photo</Text>
+        <Text style={styles.buttonText}>📷 Take a photo</Text>
       </Pressable>
       {submitting && <Text style={styles.info}>Analyzing your photo...</Text>}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 12,
-    padding: 14,
-    gap: 10,
-  },
-  button: { backgroundColor: '#00FF87', borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
-  buttonDisabled: { opacity: 0.4 },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
-  buttonText: { fontFamily: Fonts.semiBold, color: '#000', fontSize: 14 },
-  info: { fontFamily: Fonts.sans, fontSize: 13, color: Colors.dark.textSecondary },
-});
+function getStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    container: {
+      borderRadius: 22,
+      backgroundColor: theme.bgElevated,
+      padding: 14,
+      gap: 10,
+    },
+    button: { backgroundColor: theme.bgSoft, borderRadius: 14, paddingVertical: 10, alignItems: 'center' },
+    buttonDisabled: { opacity: 0.4 },
+    pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+    buttonText: { fontFamily: Fonts.semiBold, color: theme.text, fontSize: 14 },
+    info: { fontFamily: Fonts.sans, fontSize: 13, color: theme.textMuted },
+  });
+}

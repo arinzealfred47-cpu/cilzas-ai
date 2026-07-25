@@ -1,24 +1,31 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@clerk/expo';
 import * as StoreReview from 'expo-store-review';
 import type { CustomModeInput, QuestionnaireModeInput } from '@repo/recipes';
 
-import { Colors, Fonts } from '@/constants/theme';
+import { Fonts, GradientColors } from '@/constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@/hooks/use-theme';
 import { CustomForm } from '@/components/recipes/custom-form';
 import { QuestionnaireWizard } from '@/components/recipes/questionnaire-wizard';
 import { PhotoPicker } from '@/components/recipes/photo-picker';
 import { RecipeCard, type SavedRecipe } from '@/components/recipes/recipe-card';
+import { DeletionBanner } from '@/components/recipes/deletion-banner';
 import { RatingPromptModal } from '@/components/rating-prompt-modal';
 import { hasShownRatingPrompt, markRatingPromptShown, shouldTriggerRatingPrompt } from '@/lib/rating-prompt';
 
 const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:3000';
+const DELETION_UNDO_MS = 5 * 60 * 1000;
 
 type Mode = 'custom' | 'questionnaire' | 'photo';
+type PendingDeletion = { title: string; expiresAt: number };
 
 export default function RecipesScreen() {
   const { getToken } = useAuth();
+  const theme = useTheme();
+  const styles = getStyles(theme);
   const [mode, setMode] = useState<Mode>('custom');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +33,8 @@ export default function RecipesScreen() {
   const [history, setHistory] = useState<SavedRecipe[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [showRatingPrompt, setShowRatingPrompt] = useState(false);
+  const [pendingDeletions, setPendingDeletions] = useState<Record<string, PendingDeletion>>({});
+  const timeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const loadHistory = useCallback(async () => {
     setHistoryLoading(true);
@@ -121,9 +130,51 @@ export default function RecipesScreen() {
     loadHistory();
   }
 
-  function handleDeleted(recipeId: string) {
-    setHistory((prev) => prev.filter((r) => r.id !== recipeId));
-    setResult((prev) => (prev?.id === recipeId ? null : prev));
+  // Deletion is deferred: confirming starts a 5-minute undo window and only
+  // performs the real DELETE call once the timer fires. Undo just clears
+  // the timer — no network request is made in that case.
+  function handleRequestDelete(recipeId: string) {
+    const recipe = history.find((r) => r.id === recipeId) ?? (result?.id === recipeId ? result : null);
+    if (!recipe) return;
+
+    const expiresAt = Date.now() + DELETION_UNDO_MS;
+    setPendingDeletions((prev) => ({ ...prev, [recipeId]: { title: recipe.title, expiresAt } }));
+
+    timeoutsRef.current[recipeId] = setTimeout(() => {
+      finalizeDeletion(recipeId);
+    }, DELETION_UNDO_MS);
+  }
+
+  async function finalizeDeletion(recipeId: string) {
+    delete timeoutsRef.current[recipeId];
+    try {
+      const token = await getToken();
+      await fetch(`${WEB_URL}/api/recipes/${recipeId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } finally {
+      setHistory((prev) => prev.filter((r) => r.id !== recipeId));
+      setResult((prev) => (prev?.id === recipeId ? null : prev));
+      setPendingDeletions((prev) => {
+        const next = { ...prev };
+        delete next[recipeId];
+        return next;
+      });
+    }
+  }
+
+  function handleUndoDelete(recipeId: string) {
+    const timeout = timeoutsRef.current[recipeId];
+    if (timeout) {
+      clearTimeout(timeout);
+      delete timeoutsRef.current[recipeId];
+    }
+    setPendingDeletions((prev) => {
+      const next = { ...prev };
+      delete next[recipeId];
+      return next;
+    });
   }
 
   return (
@@ -132,30 +183,37 @@ export default function RecipesScreen() {
         <Text style={styles.title}>Recipe Generator</Text>
 
         <View style={styles.modeRow}>
-          <Pressable
-            style={({ pressed }) => [styles.modeButton, mode === 'custom' && styles.modeButtonActive, pressed && styles.pressed]}
-            onPress={() => setMode('custom')}
-          >
-            <Text style={mode === 'custom' ? styles.modeTextActive : styles.modeText}>Custom</Text>
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [
-              styles.modeButton,
-              mode === 'questionnaire' && styles.modeButtonActive,
-              pressed && styles.pressed,
-            ]}
-            onPress={() => setMode('questionnaire')}
-          >
-            <Text style={mode === 'questionnaire' ? styles.modeTextActive : styles.modeText}>
-              Recommend for me
-            </Text>
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [styles.modeButton, mode === 'photo' && styles.modeButtonActive, pressed && styles.pressed]}
-            onPress={() => setMode('photo')}
-          >
-            <Text style={mode === 'photo' ? styles.modeTextActive : styles.modeText}>From Photo</Text>
-          </Pressable>
+          {(
+            [
+              { key: 'custom' as const, label: 'Custom' },
+              { key: 'questionnaire' as const, label: 'Recommend for me' },
+              { key: 'photo' as const, label: 'From Photo' },
+            ]
+          ).map((m) => {
+            const active = mode === m.key;
+            return (
+              <Pressable
+                key={m.key}
+                onPress={() => setMode(m.key)}
+                style={({ pressed }) => [pressed && styles.pressed]}
+              >
+                {active ? (
+                  <LinearGradient
+                    colors={GradientColors}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.modeButton}
+                  >
+                    <Text style={styles.modeTextActive}>{m.label}</Text>
+                  </LinearGradient>
+                ) : (
+                  <View style={[styles.modeButton, styles.modeButtonInactive]}>
+                    <Text style={styles.modeText}>{m.label}</Text>
+                  </View>
+                )}
+              </Pressable>
+            );
+          })}
         </View>
 
         {mode === 'custom' && <CustomForm onSubmit={handleSubmit} submitting={submitting} />}
@@ -169,13 +227,13 @@ export default function RecipesScreen() {
         {submitting && <Text style={styles.info}>Generating your recipe...</Text>}
         {error && <Text style={styles.error}>{error}</Text>}
 
-        {result && (
+        {result && !pendingDeletions[result.id] && (
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Just generated</Text>
             <RecipeCard
               recipe={result}
               onHealthified={handleHealthified}
-              onDeleted={handleDeleted}
+              onRequestDelete={handleRequestDelete}
             />
           </View>
         )}
@@ -187,14 +245,28 @@ export default function RecipesScreen() {
             <Text style={styles.info}>No recipes generated yet.</Text>
           )}
           <View style={{ gap: 12 }}>
-            {history.map((r) => (
-              <RecipeCard
-                key={r.id}
-                recipe={r}
-                onHealthified={handleHealthified}
-                onDeleted={handleDeleted}
-              />
-            ))}
+            {history.map((r) => {
+              const pending = pendingDeletions[r.id];
+              if (pending) {
+                return (
+                  <DeletionBanner
+                    key={r.id}
+                    title={pending.title}
+                    expiresAt={pending.expiresAt}
+                    onUndo={() => handleUndoDelete(r.id)}
+                  />
+                );
+              }
+              return (
+                <RecipeCard
+                  key={r.id}
+                  recipe={r}
+                  onHealthified={handleHealthified}
+                  onRequestDelete={handleRequestDelete}
+                  collapsible
+                />
+              );
+            })}
           </View>
         </View>
       </ScrollView>
@@ -208,36 +280,36 @@ export default function RecipesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Colors.dark.background },
-  scroll: { padding: 16, gap: 16 },
-  title: { fontFamily: Fonts.semiBold, fontSize: 20, color: Colors.dark.text },
-  modeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  modeButton: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  modeButtonActive: { backgroundColor: '#00FF87', borderColor: '#00FF87' },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
-  modeText: { fontFamily: Fonts.sans, fontSize: 13, color: 'rgba(255,255,255,0.7)' },
-  modeTextActive: { fontFamily: Fonts.semiBold, fontSize: 13, color: '#000' },
-  info: { fontFamily: Fonts.sans, fontSize: 13, color: Colors.dark.textSecondary },
-  error: {
-    fontFamily: Fonts.sans,
-    fontSize: 13,
-    color: '#f87171',
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    padding: 8,
-    borderRadius: 6,
-  },
-  section: { gap: 8 },
-  sectionLabel: {
-    fontFamily: Fonts.semiBold,
-    fontSize: 12,
-    textTransform: 'uppercase',
-    color: Colors.dark.textSecondary,
-  },
-});
+function getStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: theme.bg },
+    scroll: { padding: 16, gap: 16 },
+    title: { fontFamily: Fonts.semiBold, fontSize: 20, color: theme.text },
+    modeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    modeButton: {
+      borderRadius: 999,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+    },
+    modeButtonInactive: { backgroundColor: theme.bgSoft },
+    pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+    modeText: { fontFamily: Fonts.sans, fontSize: 13, color: theme.textMuted },
+    modeTextActive: { fontFamily: Fonts.semiBold, fontSize: 13, color: '#0C2119' },
+    info: { fontFamily: Fonts.sans, fontSize: 13, color: theme.textMuted },
+    error: {
+      fontFamily: Fonts.sans,
+      fontSize: 13,
+      color: theme.danger,
+      backgroundColor: theme.dangerBg,
+      padding: 8,
+      borderRadius: 14,
+    },
+    section: { gap: 8 },
+    sectionLabel: {
+      fontFamily: Fonts.semiBold,
+      fontSize: 12,
+      textTransform: 'uppercase',
+      color: theme.textFaint,
+    },
+  });
+}

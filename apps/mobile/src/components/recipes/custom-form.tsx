@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { CustomModeInput, IngredientInput } from '@repo/recipes';
 
-import { Colors, Fonts } from '@/constants/theme';
+import { Fonts } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 const EMPTY_ROW: IngredientInput = { name: '', quantity: 1, unit: '' };
 
@@ -13,6 +14,8 @@ export function CustomForm({
   onSubmit: (input: CustomModeInput) => void;
   submitting: boolean;
 }) {
+  const theme = useTheme();
+  const styles = getStyles(theme);
   const [ingredients, setIngredients] = useState<IngredientInput[]>([{ ...EMPTY_ROW }]);
   const [servings, setServings] = useState('2');
 
@@ -48,7 +51,7 @@ export function CustomForm({
         <View key={i} style={styles.row}>
           <TextInput
             style={styles.qtyInput}
-            placeholderTextColor={Colors.dark.textSecondary}
+            placeholderTextColor={theme.textFaint}
             keyboardType="decimal-pad"
             value={String(row.quantity)}
             onChangeText={(v) => updateRow(i, { quantity: Number(v) || 0 })}
@@ -56,14 +59,14 @@ export function CustomForm({
           <TextInput
             style={styles.unitInput}
             placeholder="unit"
-            placeholderTextColor={Colors.dark.textSecondary}
+            placeholderTextColor={theme.textFaint}
             value={row.unit}
             onChangeText={(v) => updateRow(i, { unit: v })}
           />
           <TextInput
             style={styles.nameInput}
             placeholder="ingredient"
-            placeholderTextColor={Colors.dark.textSecondary}
+            placeholderTextColor={theme.textFaint}
             value={row.name}
             onChangeText={(v) => updateRow(i, { name: v })}
           />
@@ -102,67 +105,60 @@ export function CustomForm({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 12,
-    padding: 14,
-    gap: 10,
-  },
-  row: { flexDirection: 'row', gap: 6, alignItems: 'center' },
-  qtyInput: {
-    fontFamily: Fonts.sans,
-    color: Colors.dark.text,
-    width: 44,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 6,
-    padding: 8,
-  },
-  unitInput: {
-    fontFamily: Fonts.sans,
-    color: Colors.dark.text,
-    width: 70,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 6,
-    padding: 8,
-  },
-  nameInput: {
-    fontFamily: Fonts.sans,
-    color: Colors.dark.text,
-    flex: 1,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 6,
-    padding: 8,
-  },
-  remove: { fontSize: 16, color: Colors.dark.textSecondary, paddingHorizontal: 4 },
-  disabled: { opacity: 0.3 },
-  addLink: {
-    fontFamily: Fonts.sans,
-    color: Colors.dark.textSecondary,
-    textDecorationLine: 'underline',
-    fontSize: 13,
-  },
-  servingsRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  label: { fontFamily: Fonts.sans, fontSize: 13, color: Colors.dark.text },
-  servingsInput: {
-    fontFamily: Fonts.sans,
-    color: Colors.dark.text,
-    width: 60,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 6,
-    padding: 8,
-  },
-  submitButton: { backgroundColor: '#00FF87', borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
-  disabledButton: { opacity: 0.4 },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
-  submitText: { fontFamily: Fonts.semiBold, color: '#000', fontSize: 14 },
-});
+function getStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    container: {
+      borderRadius: 22,
+      backgroundColor: theme.bgElevated,
+      padding: 14,
+      gap: 10,
+    },
+    row: { flexDirection: 'row', gap: 6, alignItems: 'center' },
+    qtyInput: {
+      fontFamily: Fonts.sans,
+      color: theme.text,
+      width: 44,
+      backgroundColor: theme.bgSoft,
+      borderRadius: 10,
+      padding: 8,
+    },
+    unitInput: {
+      fontFamily: Fonts.sans,
+      color: theme.text,
+      width: 70,
+      backgroundColor: theme.bgSoft,
+      borderRadius: 10,
+      padding: 8,
+    },
+    nameInput: {
+      fontFamily: Fonts.sans,
+      color: theme.text,
+      flex: 1,
+      backgroundColor: theme.bgSoft,
+      borderRadius: 10,
+      padding: 8,
+    },
+    remove: { fontSize: 16, color: theme.textFaint, paddingHorizontal: 4 },
+    disabled: { opacity: 0.3 },
+    addLink: {
+      fontFamily: Fonts.sans,
+      color: theme.textFaint,
+      textDecorationLine: 'underline',
+      fontSize: 13,
+    },
+    servingsRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    label: { fontFamily: Fonts.sans, fontSize: 13, color: theme.text },
+    servingsInput: {
+      fontFamily: Fonts.sans,
+      color: theme.text,
+      width: 60,
+      backgroundColor: theme.bgSoft,
+      borderRadius: 10,
+      padding: 8,
+    },
+    submitButton: { backgroundColor: '#86F0C6', borderRadius: 999, paddingVertical: 10, alignItems: 'center' },
+    disabledButton: { opacity: 0.4 },
+    pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+    submitText: { fontFamily: Fonts.semiBold, color: '#0C2119', fontSize: 14 },
+  });
+}

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-import { Colors, Fonts } from '@/constants/theme';
+import { Fonts } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 export function RatingPromptModal({
   visible,
@@ -14,6 +15,8 @@ export function RatingPromptModal({
   onDismiss: () => void;
 }) {
   const [hovered, setHovered] = useState(0);
+  const theme = useTheme();
+  const styles = getStyles(theme);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onDismiss}>
@@ -55,59 +58,64 @@ export function RatingPromptModal({
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 360,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    backgroundColor: Colors.dark.background,
-    padding: 20,
-    alignItems: 'center',
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-  },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
-  closeText: { fontFamily: Fonts.sans, fontSize: 14, color: Colors.dark.textSecondary },
-  title: {
-    fontFamily: Fonts.semiBold,
-    fontSize: 17,
-    color: Colors.dark.text,
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  message: {
-    fontFamily: Fonts.sans,
-    fontSize: 13,
-    color: Colors.dark.textSecondary,
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  starsRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
-  star: { fontSize: 34, color: 'rgba(255,255,255,0.2)' },
-  starActive: { color: '#00FF87' },
-  footnote: {
-    fontFamily: Fonts.sans,
-    fontSize: 11,
-    color: Colors.dark.textSecondary,
-    textAlign: 'center',
-    marginTop: 18,
-  },
-});
+function getStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 20,
+    },
+    card: {
+      width: '100%',
+      maxWidth: 360,
+      borderRadius: 22,
+      backgroundColor: theme.bgElevated,
+      padding: 20,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.2,
+      shadowRadius: 24,
+      elevation: 6,
+    },
+    closeButton: {
+      position: 'absolute',
+      top: 12,
+      right: 12,
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.bgSoft,
+    },
+    pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+    closeText: { fontFamily: Fonts.sans, fontSize: 14, color: theme.textMuted },
+    title: {
+      fontFamily: Fonts.semiBold,
+      fontSize: 17,
+      color: theme.text,
+      textAlign: 'center',
+      marginTop: 8,
+    },
+    message: {
+      fontFamily: Fonts.sans,
+      fontSize: 13,
+      color: theme.textMuted,
+      textAlign: 'center',
+      marginTop: 8,
+    },
+    starsRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
+    star: { fontSize: 34, color: theme.border },
+    starActive: { color: theme.warn },
+    footnote: {
+      fontFamily: Fonts.sans,
+      fontSize: 11,
+      color: theme.textFaint,
+      textAlign: 'center',
+      marginTop: 18,
+    },
+  });
+}

@@ -1,7 +1,8 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-import { Colors, Fonts } from '@/constants/theme';
+import { Fonts } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 export function ConfirmModal({
   visible,
@@ -20,6 +21,9 @@ export function ConfirmModal({
   onCancel: () => void;
   onConfirm: () => void;
 }) {
+  const theme = useTheme();
+  const styles = getStyles(theme);
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={styles.backdrop}>
@@ -53,36 +57,40 @@ export function ConfirmModal({
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 360,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    backgroundColor: Colors.dark.background,
-    padding: 20,
-  },
-  title: { fontFamily: Fonts.semiBold, fontSize: 16, color: Colors.dark.text },
-  message: { fontFamily: Fonts.sans, fontSize: 13, color: Colors.dark.textSecondary, marginTop: 8 },
-  actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 20 },
-  cancelButton: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  cancelText: { fontFamily: Fonts.sans, fontSize: 13, color: Colors.dark.text },
-  confirmButton: { backgroundColor: '#dc2626', borderRadius: 6, paddingHorizontal: 14, paddingVertical: 8 },
-  disabled: { opacity: 0.5 },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
-  confirmText: { fontFamily: Fonts.semiBold, fontSize: 13, color: '#fff' },
-});
+function getStyles(theme: ReturnType<typeof useTheme>) {
+  return StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 20,
+    },
+    card: {
+      width: '100%',
+      maxWidth: 360,
+      borderRadius: 22,
+      backgroundColor: theme.bgElevated,
+      padding: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.2,
+      shadowRadius: 24,
+      elevation: 6,
+    },
+    title: { fontFamily: Fonts.semiBold, fontSize: 16, color: theme.text },
+    message: { fontFamily: Fonts.sans, fontSize: 13, color: theme.textMuted, marginTop: 8 },
+    actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 20 },
+    cancelButton: {
+      backgroundColor: theme.bgSoft,
+      borderRadius: 14,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+    },
+    cancelText: { fontFamily: Fonts.sans, fontSize: 13, color: theme.text },
+    confirmButton: { backgroundColor: theme.dangerFill, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8 },
+    disabled: { opacity: 0.5 },
+    pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
+    confirmText: { fontFamily: Fonts.semiBold, fontSize: 13, color: theme.danger },
+  });
+}
