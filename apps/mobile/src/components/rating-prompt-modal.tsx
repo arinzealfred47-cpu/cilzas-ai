@@ -28,7 +28,7 @@ export function RatingPromptModal({
             <Text style={styles.closeText}>✕</Text>
           </Pressable>
 
-          <Text style={styles.title}>Enjoying Cilzas AI?</Text>
+          <Text style={styles.title}>Enjoying Ingredas?</Text>
           <Text style={styles.message}>
             You've generated 5 recipes — let us know what you think with a quick rating.
           </Text>

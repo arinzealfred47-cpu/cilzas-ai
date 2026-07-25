@@ -111,7 +111,7 @@ export function buildRecipeEmailHtml(
             <tr>
               <td style="padding:20px 0;border-top:1px solid rgba(255,255,255,0.12);text-align:center;">
                 <p style="margin:0 0 14px;color:rgba(255,255,255,0.6);font-size:13px;line-height:1.5;">
-                  This recipe was made with Cilzas AI — turn whatever's in your kitchen into a real recipe in seconds.
+                  This recipe was made with Ingredas — turn whatever's in your kitchen into a real recipe in seconds.
                 </p>
                 <a
                   href="${opts.signUpUrl}"
