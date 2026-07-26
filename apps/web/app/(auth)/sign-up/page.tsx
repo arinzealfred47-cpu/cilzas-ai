@@ -8,6 +8,7 @@ import Turnstile from "react-turnstile";
 import { CONSENTS, type ConsentKey } from "../consents";
 import { clerkErrorCode, clerkErrorMessage } from "../clerk-error";
 import { useTheme } from "@/app/theme-context";
+import { GoogleIcon, AppleIcon } from "../oauth-icons";
 
 type Step = "details" | "otp" | "turnstile";
 
@@ -142,10 +143,10 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 px-4 py-16">
-      <div className="card flex flex-col gap-6 p-6">
+    <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 px-4 py-16">
       <h1 className="text-[1.25rem] font-bold tracking-[-0.01em]">Create your account</h1>
 
+      <div className="card flex flex-col gap-6 p-6">
       {error && <p className="error-box">{error}</p>}
 
       {step === "details" && (
@@ -193,7 +194,7 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={!allAccepted || submitting}
-            className="gradient-button px-3 py-2"
+            className="gradient-button w-full px-3 py-2"
           >
             Sign up
           </button>
@@ -203,21 +204,21 @@ export default function SignUpPage() {
               type="button"
               disabled={!allAccepted}
               onClick={() => handleOAuth("oauth_google")}
-              className="button-outline disabled:opacity-40"
+              className="button-outline flex items-center justify-center gap-2 disabled:opacity-40"
             >
-              Continue with Google
+              <GoogleIcon /> Continue with Google
             </button>
             <button
               type="button"
               disabled={!allAccepted}
               onClick={() => handleOAuth("oauth_apple")}
-              className="button-outline disabled:opacity-40"
+              className="button-outline flex items-center justify-center gap-2 disabled:opacity-40"
             >
-              Continue with Apple
+              <AppleIcon /> Continue with Apple
             </button>
           </div>
 
-          <p className="text-sm text-[color:var(--text-muted)]">
+          <p className="text-center text-sm text-[color:var(--text-muted)]">
             Already have an account?{" "}
             <Link href="/sign-in" className="font-medium" style={{ color: "var(--text)" }}>
               Sign in
@@ -244,7 +245,7 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="gradient-button px-3 py-2"
+            className="gradient-button w-full px-3 py-2"
           >
             Verify
           </button>

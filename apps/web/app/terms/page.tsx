@@ -1,9 +1,166 @@
-import { PolicyPage } from "../policy-page";
+import { PolicyPage, Section } from "../policy-page";
 
 export default function TermsOfServicePage() {
   return (
-    <PolicyPage title="Terms of Service">
-      <p>Placeholder content — replace with your actual terms of service.</p>
+    <PolicyPage title="Terms of Service" effectiveDate="July 26, 2026">
+      <p>
+        These Terms of Service (&quot;Terms&quot;) govern your access to and use of Ingredas
+        (the &quot;Service&quot;), including the ingredas.com website and the Ingredas mobile
+        applications. By creating an account or otherwise using the Service, you agree to be
+        bound by these Terms. If you do not agree, do not use the Service.
+      </p>
+
+      <Section heading="1. Eligibility">
+        <p>
+          You must be at least 16 years old to use Ingredas. By using the Service you represent
+          that you meet this requirement and that you have the legal capacity to enter into these
+          Terms.
+        </p>
+      </Section>
+
+      <Section heading="2. The Service">
+        <p>
+          Ingredas uses artificial intelligence to generate recipes from ingredients you list, a
+          questionnaire you answer, or a photo you upload, and to offer &quot;healthified&quot;
+          variations of recipes. Recipes, ingredient substitutions, and nutritional or health
+          framing produced by the Service are generated automatically and are provided for
+          general cooking inspiration only. See our{" "}
+          <a href="/legal" style={{ color: "var(--text)" }}>
+            Legal Policy
+          </a>{" "}
+          for important disclaimers about accuracy, allergens, and health information.
+        </p>
+      </Section>
+
+      <Section heading="3. Accounts">
+        <p>
+          You are responsible for maintaining the confidentiality of your account credentials and
+          for all activity under your account. Authentication is provided by our processor,
+          Clerk. You agree to provide accurate information when creating an account and to keep
+          it up to date.
+        </p>
+      </Section>
+
+      <Section heading="4. Subscriptions, Trials, and Billing">
+        <p>
+          New accounts receive a 3-day free trial with full access to the Service. Unless you
+          cancel before the trial ends, your subscription automatically begins and you will be
+          charged on a recurring basis until you cancel:
+        </p>
+        <ul className="ml-5 list-disc">
+          <li>Monthly plan: $9.99 per month.</li>
+          <li>Annual plan: $99.99 per year.</li>
+        </ul>
+        <p>
+          Subscriptions automatically renew for successive periods of the same length at the
+          then-current price until cancelled. If you signed up on the web, billing is processed
+          by Dodo Payments and you can manage or cancel your subscription from the Settings page
+          or the billing portal linked there. If you signed up through the iOS or Android app,
+          billing is processed by Apple or Google respectively, and subscriptions must be managed
+          through your Apple ID or Google Play account settings — Ingredas cannot modify or
+          refund purchases made through those stores directly. See our{" "}
+          <a href="/refund-policy" style={{ color: "var(--text)" }}>
+            Refund Policy
+          </a>{" "}
+          for how cancellations, refunds, and account deletion interact.
+        </p>
+      </Section>
+
+      <Section heading="5. Acceptable Use">
+        <p>You agree not to:</p>
+        <ul className="ml-5 list-disc">
+          <li>Use the Service for any unlawful purpose or in violation of any applicable law;</li>
+          <li>
+            Upload photos or content that you do not have the right to upload, or that contain
+            another person&apos;s personal information without their consent;
+          </li>
+          <li>
+            Attempt to circumvent usage limits, reverse-engineer the Service, or interfere with
+            its operation, including automated scraping or bulk querying of the recipe generator;
+          </li>
+          <li>Use the Service to generate or distribute harmful, abusive, or illegal content.</li>
+        </ul>
+        <p>We may suspend or terminate accounts that violate these Terms.</p>
+      </Section>
+
+      <Section heading="6. Your Content">
+        <p>
+          You retain ownership of the ingredient lists, photos, and other input you submit
+          (&quot;Your Content&quot;). By submitting Your Content, you grant Ingredas a
+          non-exclusive, worldwide license to process it solely to provide the Service to you
+          (for example, sending a photo to our AI provider to identify ingredients, or emailing a
+          generated recipe to a recipient you specify). We do not use Your Content to train
+          third-party AI models beyond what is necessary to generate your recipe in the moment.
+        </p>
+      </Section>
+
+      <Section heading="7. AI-Generated Output">
+        <p>
+          Recipes, substitutions, and health-related flags are generated by an AI model and are
+          provided &quot;as is,&quot; without any guarantee of accuracy, completeness, or fitness
+          for a particular purpose, including dietary or allergen safety. You are solely
+          responsible for verifying that any recipe is safe for you and anyone you prepare it for
+          before cooking or eating it.
+        </p>
+      </Section>
+
+      <Section heading="8. Intellectual Property">
+        <p>
+          The Service, including its design, software, and the Ingredas name and logo, is owned
+          by Ingredas and protected by intellectual property laws. These Terms do not grant you
+          any right to use our branding except as necessary to use the Service as intended.
+        </p>
+      </Section>
+
+      <Section heading="9. Termination">
+        <p>
+          You may stop using the Service and delete your account at any time from Settings. We
+          may suspend or terminate your access to the Service if you breach these Terms. Section 4
+          of these Terms and our{" "}
+          <a href="/refund-policy" style={{ color: "var(--text)" }}>
+            Refund Policy
+          </a>{" "}
+          describe what happens to your subscription and data when your account is deleted.
+        </p>
+      </Section>
+
+      <Section heading="10. Disclaimers and Limitation of Liability">
+        <p>
+          The Service is provided &quot;as is&quot; and &quot;as available,&quot; without
+          warranties of any kind, express or implied. To the fullest extent permitted by law,
+          Ingredas will not be liable for any indirect, incidental, special, or consequential
+          damages, or for any loss of data, arising from your use of the Service, including any
+          health, allergy, or other adverse reaction to food prepared from a generated recipe. Our
+          total liability for any claim relating to the Service will not exceed the amount you
+          paid us in the 12 months before the claim arose.
+        </p>
+      </Section>
+
+      <Section heading="11. Changes to These Terms">
+        <p>
+          We may update these Terms from time to time. If we make material changes, we will
+          update the effective date above and, where appropriate, notify you. Continued use of the
+          Service after changes take effect constitutes acceptance of the updated Terms.
+        </p>
+      </Section>
+
+      <Section heading="12. Governing Law">
+        <p>
+          These Terms are governed by the laws of the jurisdiction in which Ingredas operates,
+          without regard to conflict-of-law principles, except where local consumer protection law
+          requires otherwise.
+        </p>
+      </Section>
+
+      <Section heading="13. Contact">
+        <p>
+          Questions about these Terms can be sent to{" "}
+          <a href="mailto:support@ingredas.com" style={{ color: "var(--text)" }}>
+            support@ingredas.com
+          </a>
+          .
+        </p>
+      </Section>
     </PolicyPage>
   );
 }

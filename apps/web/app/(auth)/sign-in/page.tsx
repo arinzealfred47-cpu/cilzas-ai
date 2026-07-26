@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSignIn } from "@clerk/nextjs";
 import { clerkErrorCode, clerkErrorMessage } from "../clerk-error";
+import { GoogleIcon, AppleIcon } from "../oauth-icons";
 
 export default function SignInPage() {
   const { signIn } = useSignIn();
@@ -66,10 +67,10 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6 px-4 py-16">
-      <div className="card flex flex-col gap-6 p-6">
-        <h1 className="text-[1.25rem] font-bold tracking-[-0.01em]">Sign in</h1>
+    <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 px-4 py-16">
+      <h1 className="text-[1.25rem] font-bold tracking-[-0.01em]">Sign in</h1>
 
+      <div className="card flex flex-col gap-6 p-6">
         {error && <p className="error-box">{error}</p>}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -92,7 +93,7 @@ export default function SignInPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="gradient-button px-3 py-2.5"
+            className="gradient-button w-full px-3 py-2.5"
           >
             Sign in
           </button>
@@ -101,20 +102,20 @@ export default function SignInPage() {
             <button
               type="button"
               onClick={() => handleOAuth("oauth_google")}
-              className="button-outline"
+              className="button-outline flex items-center justify-center gap-2"
             >
-              Continue with Google
+              <GoogleIcon /> Continue with Google
             </button>
             <button
               type="button"
               onClick={() => handleOAuth("oauth_apple")}
-              className="button-outline"
+              className="button-outline flex items-center justify-center gap-2"
             >
-              Continue with Apple
+              <AppleIcon /> Continue with Apple
             </button>
           </div>
 
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          <p className="text-center text-sm" style={{ color: "var(--text-muted)" }}>
             Don&apos;t have an account?{" "}
             <Link href="/sign-up" className="font-medium" style={{ color: "var(--text)" }}>
               Sign up

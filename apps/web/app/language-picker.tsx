@@ -39,14 +39,21 @@ export function LanguagePicker({ variant = "header" }: { variant?: "header" | "s
     setQuery("");
   }
 
+  const isSettings = variant === "settings";
+
   return (
-    <div className="relative w-full max-w-xs" ref={containerRef}>
+    <div className={isSettings ? "relative w-full" : "relative inline-block"} ref={containerRef}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="button-soft flex w-full items-center justify-between px-4 py-2 text-sm"
+        className={
+          isSettings
+            ? "button-soft flex w-full items-center justify-between px-4 py-2.5 text-sm"
+            : "inline-flex items-center gap-1 rounded-[var(--radius-pill)] border px-3.5 py-2 text-xs"
+        }
+        style={isSettings ? undefined : { borderColor: "var(--border)", background: "var(--bg-soft)", color: "var(--text)" }}
       >
-        {variant === "settings" ? (
+        {isSettings ? (
           <>
             <span>🌐 Language *</span>
             <span>
@@ -61,7 +68,9 @@ export function LanguagePicker({ variant = "header" }: { variant?: "header" | "s
       </button>
 
       {open && (
-        <div className="card absolute z-20 mt-2 w-full overflow-hidden">
+        <div
+          className={`card absolute z-20 mt-2 overflow-hidden ${isSettings ? "left-0 right-0" : "right-0 w-60"}`}
+        >
           <input
             autoFocus
             type="text"
@@ -71,7 +80,7 @@ export function LanguagePicker({ variant = "header" }: { variant?: "header" | "s
             className="w-full border-b bg-transparent px-4 py-2 text-sm outline-none"
             style={{ borderColor: "var(--border)", color: "var(--text)" }}
           />
-          <ul className="max-h-64 overflow-y-auto">
+          <ul className="max-h-48 overflow-y-auto">
             {filtered.map((l) => (
               <li key={l.code}>
                 <button
