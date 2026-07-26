@@ -17,7 +17,7 @@ export function LandingContent() {
       <div className="bg-blob bg-blob-a" style={{ top: "-6rem", left: "-6rem" }} />
       <div className="bg-blob bg-blob-b" style={{ bottom: "-4rem", right: "-4rem" }} />
 
-      <div className="relative z-10 flex w-full max-w-xl justify-end">
+      <div className="relative z-30 flex w-full max-w-xl justify-end">
         <LanguagePicker />
       </div>
 
