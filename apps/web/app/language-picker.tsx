@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LANGUAGES, findLanguage } from "@repo/i18n";
+import { SUPPORTED_LANGUAGES, findLanguage } from "@repo/i18n";
 import { useLanguage } from "./language-context";
 
 export function LanguagePicker({ variant = "header" }: { variant?: "header" | "settings" }) {
@@ -25,8 +25,8 @@ export function LanguagePicker({ variant = "header" }: { variant?: "header" | "s
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return LANGUAGES;
-    return LANGUAGES.filter(
+    if (!q) return SUPPORTED_LANGUAGES;
+    return SUPPORTED_LANGUAGES.filter(
       (l) =>
         l.name.toLowerCase().includes(q) ||
         l.nativeName.toLowerCase().includes(q),

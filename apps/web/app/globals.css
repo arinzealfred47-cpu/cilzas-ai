@@ -418,3 +418,32 @@ body {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+.password-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: -0.5rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-btn);
+  background: var(--bg-soft);
+  animation: in-up 220ms var(--ease);
+}
+.password-hint.password-hint-invalid {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+.password-hint.password-hint-valid {
+  color: var(--accent-ink);
+  background-image: var(--gradient-soft);
+}
+.password-hint-label {
+  margin: 0 0 0.3rem;
+  font-weight: 600;
+}
+.password-hint-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}

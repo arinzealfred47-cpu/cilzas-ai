@@ -10,7 +10,16 @@ import { clerkErrorCode, clerkErrorMessage } from "../clerk-error";
 import { useTheme } from "@/app/theme-context";
 import { GoogleIcon, AppleIcon } from "../oauth-icons";
 
-type Step = "details" | "otp" | "turnstile";
+type Step = "details" | "turnstile" | "otp";
+
+function isPasswordValid(value: string): boolean {
+  return (
+    value.length >= 8 &&
+    /[A-Z]/.test(value) &&
+    /[0-9]/.test(value) &&
+    /[^A-Za-z0-9]/.test(value)
+  );
+}
 
 export default function SignUpPage() {
   const { signUp } = useSignUp();
@@ -20,6 +29,7 @@ export default function SignUpPage() {
   const [step, setStep] = useState<Step>("details");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordTouched, setPasswordTouched] = useState(false);
   const [code, setCode] = useState("");
   const [accepted, setAccepted] = useState<Record<ConsentKey, boolean>>({
     legal: false,
@@ -31,6 +41,7 @@ export default function SignUpPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const allAccepted = CONSENTS.every((c) => accepted[c.key]);
+  const passwordValid = isPasswordValid(password);
 
   function consentTimestamps() {
     const now = new Date().toISOString();
@@ -43,12 +54,30 @@ export default function SignUpPage() {
     };
   }
 
-  async function handleDetailsSubmit(e: FormEvent) {
+  function handleDetailsSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!signUp || !allAccepted) return;
+    if (!allAccepted || !passwordValid) return;
+    setError(null);
+    setStep("turnstile");
+  }
 
+  async function handleTurnstileSuccess(token: string) {
+    if (!signUp) return;
     setError(null);
     setSubmitting(true);
+
+    const verifyRes = await fetch("/api/verify-turnstile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+
+    if (!verifyRes.ok) {
+      setSubmitting(false);
+      setError("Bot verification failed. Please try again.");
+      setStep("details");
+      return;
+    }
 
     const { error: createErr } = await signUp.password({
       emailAddress: email,
@@ -64,6 +93,7 @@ export default function SignUpPage() {
         return;
       }
       setError(clerkErrorMessage(createErr));
+      setStep("details");
       return;
     }
 
@@ -72,6 +102,7 @@ export default function SignUpPage() {
 
     if (codeErr) {
       setError(clerkErrorMessage(codeErr));
+      setStep("details");
       return;
     }
 
@@ -89,28 +120,9 @@ export default function SignUpPage() {
       code,
     });
 
-    setSubmitting(false);
-
     if (verifyErr) {
+      setSubmitting(false);
       setError(clerkErrorMessage(verifyErr));
-      return;
-    }
-
-    setStep("turnstile");
-  }
-
-  async function handleTurnstileSuccess(token: string) {
-    if (!signUp) return;
-    setError(null);
-
-    const verifyRes = await fetch("/api/verify-turnstile", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-    });
-
-    if (!verifyRes.ok) {
-      setError("Bot verification failed. Please try again.");
       return;
     }
 
@@ -119,6 +131,8 @@ export default function SignUpPage() {
         router.push(decorateUrl("/dashboard"));
       },
     });
+
+    setSubmitting(false);
 
     if (finalizeErr) {
       setError(clerkErrorMessage(finalizeErr));
@@ -164,9 +178,31 @@ export default function SignUpPage() {
             required
             placeholder="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onFocus={() => setPasswordTouched(true)}
+            onChange={(e) => {
+              setPasswordTouched(true);
+              setPassword(e.target.value);
+            }}
             className="input-field"
           />
+
+          {passwordTouched && (
+            <div className={`password-hint ${passwordValid ? "password-hint-valid" : "password-hint-invalid"}`}>
+              {passwordValid ? (
+                <p className="password-hint-label">✓ Looks good.</p>
+              ) : (
+                <>
+                  <p className="password-hint-label">Password must include:</p>
+                  <ul className="password-hint-list">
+                    <li>At least 8 characters</li>
+                    <li>1 capital letter</li>
+                    <li>1 number</li>
+                    <li>1 symbol (e.g. !, @, #)</li>
+                  </ul>
+                </>
+              )}
+            </div>
+          )}
 
           <fieldset className="flex flex-col gap-2">
             {CONSENTS.map((c) => (
@@ -193,7 +229,7 @@ export default function SignUpPage() {
 
           <button
             type="submit"
-            disabled={!allAccepted || submitting}
+            disabled={!allAccepted || !passwordValid}
             className="gradient-button w-full px-3 py-2"
           >
             Sign up
@@ -227,6 +263,24 @@ export default function SignUpPage() {
         </form>
       )}
 
+      {step === "turnstile" && (
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-sm text-[color:var(--text-muted)]">
+            One quick check before we email you a verification code.
+          </p>
+          {submitting ? (
+            <p className="text-sm text-[color:var(--text-muted)]">Creating your account...</p>
+          ) : (
+            <Turnstile
+              sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+              theme={theme}
+              onSuccess={handleTurnstileSuccess}
+              onError={() => setError("Bot verification failed. Please try again.")}
+            />
+          )}
+        </div>
+      )}
+
       {step === "otp" && (
         <form onSubmit={handleOtpSubmit} className="flex flex-col gap-4">
           <p className="text-sm text-[color:var(--text-muted)]">
@@ -250,20 +304,6 @@ export default function SignUpPage() {
             Verify
           </button>
         </form>
-      )}
-
-      {step === "turnstile" && (
-        <div className="flex flex-col items-center gap-4">
-          <p className="text-sm text-[color:var(--text-muted)]">
-            One last check before we finish creating your account.
-          </p>
-          <Turnstile
-            sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-            theme={theme}
-            onSuccess={handleTurnstileSuccess}
-            onError={() => setError("Bot verification failed. Please try again.")}
-          />
-        </div>
       )}
       </div>
     </div>

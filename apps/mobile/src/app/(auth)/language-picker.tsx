@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { LANGUAGES, findLanguage, type Language } from '@repo/i18n';
+import { SUPPORTED_LANGUAGES, findLanguage, type Language } from '@repo/i18n';
 import { useLanguage } from './language-context';
 
 export function LanguagePicker() {
@@ -12,8 +12,8 @@ export function LanguagePicker() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return LANGUAGES;
-    return LANGUAGES.filter(
+    if (!q) return SUPPORTED_LANGUAGES;
+    return SUPPORTED_LANGUAGES.filter(
       (l) => l.name.toLowerCase().includes(q) || l.nativeName.toLowerCase().includes(q),
     );
   }, [query]);
