@@ -232,6 +232,23 @@ body {
   background: var(--bg-soft-hover);
 }
 
+.oauth-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+}
+.oauth-btn:hover {
+  background: var(--bg-soft);
+}
+
 .error-box {
   border-radius: var(--radius-btn);
   border: none;

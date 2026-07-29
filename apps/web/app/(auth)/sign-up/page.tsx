@@ -240,7 +240,7 @@ export default function SignUpPage() {
               type="button"
               disabled={!allAccepted}
               onClick={() => handleOAuth("oauth_google")}
-              className="button-outline flex items-center justify-center gap-2 disabled:opacity-40"
+              className="oauth-btn disabled:opacity-40"
             >
               <GoogleIcon /> Continue with Google
             </button>
@@ -248,7 +248,7 @@ export default function SignUpPage() {
               type="button"
               disabled={!allAccepted}
               onClick={() => handleOAuth("oauth_apple")}
-              className="button-outline flex items-center justify-center gap-2 disabled:opacity-40"
+              className="oauth-btn disabled:opacity-40"
             >
               <AppleIcon /> Continue with Apple
             </button>

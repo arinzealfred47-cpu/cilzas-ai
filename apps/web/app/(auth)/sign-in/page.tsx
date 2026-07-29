@@ -102,14 +102,14 @@ export default function SignInPage() {
             <button
               type="button"
               onClick={() => handleOAuth("oauth_google")}
-              className="button-outline flex items-center justify-center gap-2"
+              className="oauth-btn"
             >
               <GoogleIcon /> Continue with Google
             </button>
             <button
               type="button"
               onClick={() => handleOAuth("oauth_apple")}
-              className="button-outline flex items-center justify-center gap-2"
+              className="oauth-btn"
             >
               <AppleIcon /> Continue with Apple
             </button>
